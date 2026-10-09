@@ -1,6 +1,6 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { Resend } from "resend";
-import { site } from "./site";
+import { publicUrl, site } from "./site";
 import { adminBookingHtml, adminMessageHtml, userBookingHtml } from "./email-templates";
 import type { BookingDoc, MessageDoc } from "./models";
 
@@ -62,7 +62,7 @@ function ro(d: Date) {
 export async function sendBookingEmails(b: BookingDoc) {
   const { date, hour } = ro(b.start);
   const data = { name: b.name, phone: b.phone, email: b.email, date, hour, type: b.bookingTypeTitle, medic: b.doctor };
-  const confirmUrl = `${process.env.SITE_URL ?? site.url}/programare/confirma/${b._id}/${confirmToken(b)}`;
+  const confirmUrl = `${publicUrl()}/programare/confirma/${b._id}/${confirmToken(b)}`;
 
   // ca pe site-ul vechi: întâi emailul către cabinet, apoi confirmarea către pacient
   await send({ to: ADMIN, replyTo: b.email, subject: "Programare nouă - JoyOptic", html: adminBookingHtml(data) });

@@ -16,6 +16,17 @@ export const site = {
     "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2830.212136933364!2d25.733491!3d45.1256073!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x40b3007850198c7f%3A0x7608a986b0854d92!2sJOY%20OPTIC!5e0!3m2!1sen!2sro!4v1708600000000",
 };
 
+/**
+ * Adresa publică a site-ului, pentru linkurile din emailuri (ex. confirmarea programării).
+ * SITE_URL dacă e setat; altfel adresa de producție dată de Vercel (`.vercel.app` până se leagă domeniul,
+ * apoi joyoptic.ro, automat); altfel joyoptic.ro.
+ */
+export function publicUrl(): string {
+  if (process.env.SITE_URL) return process.env.SITE_URL;
+  if (process.env.VERCEL_PROJECT_PRODUCTION_URL) return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`;
+  return site.url;
+}
+
 /** Meniul de pe prima pagină (Layouts/promoted.ctp), cu ancore. */
 export const homeMenu = [
   { title: "Acasă", href: `#${sectionId("hero")}` },
