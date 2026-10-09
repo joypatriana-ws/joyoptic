@@ -2,6 +2,11 @@ import Link from "next/link";
 import { rowClasses } from "@/lib/theme-classes.mjs";
 import { footerMenu, servicesMenu, site } from "@/lib/site";
 
+const legalMenu = [
+  { href: "/politica-de-confidentialitate", title: "Politica de confidențialitate" },
+  { href: "/cookies", title: "Politica de cookie-uri" },
+];
+
 const linksCol = "mb-[30px] md:w-1/4 lg:w-1/6";
 const h4 = "relative pb-3 text-[16px] font-bold";
 const ul = "m-0 list-none p-0";
@@ -15,7 +20,7 @@ export function Footer() {
       <div className="container-bs pt-[50px]">
         <div className={rowClasses(1.5, 1.5)}>
           {/* Despre Joy Optic */}
-          <div className="md:w-1/2 lg:w-1/3">
+          <div className="md:w-1/2 lg:w-1/4">
             <Link href="/" className="mb-[25px] flex items-center leading-none">
               <span className="font-heading text-[26px] font-bold tracking-[1px] text-heading">{site.name}</span>
             </Link>
@@ -67,8 +72,22 @@ export function Footer() {
             </ul>
           </div>
 
+          {/* Informații legale (ca în NovaFit) */}
+          <div className="mb-[30px] md:w-1/2 lg:w-1/6">
+            <h4 className={h4}>Informații legale</h4>
+            <ul className={ul}>
+              {legalMenu.map((l) => (
+                <li key={l.href} className={li}>
+                  <Link href={l.href} className={a}>
+                    {l.title}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
           {/* Program */}
-          <div className="mb-[30px] md:w-1/2 lg:w-1/3">
+          <div className="mb-[30px] md:w-1/2 lg:w-1/4">
             <h4 className={h4}>Program</h4>
             <ul className={ul}>
               <li className={li}>
@@ -88,16 +107,7 @@ export function Footer() {
       {/* Copyright */}
       <div className="container-bs mt-6 border-t border-default/10 py-[25px] text-center">
         <p className="mb-0">
-          © 2025 <strong className="px-1">{site.name}</strong> | Toate drepturile rezervate.
-        </p>
-        <p className="mt-2 mb-0 text-[13px]">
-          <Link href="/politica-de-confidentialitate" className="text-default/70 hover:text-accent">
-            Politica de confidențialitate
-          </Link>
-          <span className="px-2 text-default/40">|</span>
-          <Link href="/cookies" className="text-default/70 hover:text-accent">
-            Cookie-uri
-          </Link>
+          © {new Date().getFullYear()} <strong className="px-1">{site.name}</strong> | Toate drepturile rezervate.
         </p>
       </div>
     </footer>
