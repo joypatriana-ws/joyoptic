@@ -18,8 +18,19 @@ export async function PATCH(request: NextRequest, { params }: Ctx) {
   if (!stare || !(stare in SCHIMBARI)) return NextResponse.json({ error: "stare_invalida" }, { status: 400 });
 
   await connectDb();
-  const r = await Booking.updateOne({ _id: id }, { $set: SCHIMBARI[stare] });
-  if (!r.matchedCount) return NextResponse.json({ error: "negasita" }, { status: 404 });
+  try {
+    const r = await Booking.updateOne({ _id: id }, { $set: SCHIMBARI[stare] });
+    if (!r.matchedCount) return NextResponse.json({ error: "negasita" }, { status: 404 });
+  } catch (e) {
+    // o programare anulată nu poate reveni dacă între timp intervalul a fost luat
+    if ((e as { code?: number })?.code === 11000) {
+      return NextResponse.json(
+        { error: "ora_ocupata", message: "Intervalul e deja luat de altă programare. Fă o programare nouă pe alt interval." },
+        { status: 409 },
+      );
+    }
+    throw e;
+  }
   return NextResponse.json({ ok: true, stare });
 }
 

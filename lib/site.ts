@@ -89,15 +89,25 @@ export const gallery = [
 /** Telefon românesc, ca în validarea formularelor vechi. */
 export const phonePattern = /^(07[1-9]\d{7}|02\d{7}|03\d{7})$/;
 
-const workHours = ["09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00"];
+/** O consultație durează 15 minute (confirmat de cabinet). */
+export const SLOT_MINUTES = 15;
+
+function slots(from: string, to: string): string[] {
+  const toMin = (t: string) => Number(t.slice(0, 2)) * 60 + Number(t.slice(3));
+  const out: string[] = [];
+  for (let m = toMin(from); m + SLOT_MINUTES <= toMin(to); m += SLOT_MINUTES) {
+    out.push(`${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`);
+  }
+  return out;
+}
 
 /**
- * Orele din select-ul de programare: 09:00–19:00, sâmbăta până la 12:00, duminica închis.
- * (Pe site-ul vechi filtrul de sâmbătă se aplica după ziua de azi; aici după ziua aleasă.)
+ * Intervalele de programare ale zilei, din 15 în 15 minute, în programul cabinetului:
+ * luni–vineri 09:00–19:00, sâmbătă 09:00–12:00, duminică închis.
  */
 export function hoursFor(date: Date): string[] {
   const day = date.getDay();
   if (day === 0) return [];
-  if (day === 6) return workHours.filter((h) => h <= "12:00");
-  return workHours;
+  if (day === 6) return slots("09:00", "12:00");
+  return slots("09:00", "19:00");
 }

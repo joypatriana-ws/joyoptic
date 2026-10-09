@@ -182,6 +182,9 @@ function transform(t) {
     } catch {}
     return {
       legacyId: b.id,
+      // „YYYY-MM-DD HH:MM" exact cum era în Croogo (oră locală)
+      slot: b.start.slice(0, 16),
+      cancelled: false,
       bookingTypeLegacyId: b.booking_type_id,
       start: date(b.start),
       end: date(b.end),
@@ -292,6 +295,10 @@ await upsertAll(
   })),
 );
 await upsertAll("messages", data.messages);
+// un interval (15 min) nu poate avea două programări active
+await db
+  .collection("bookings")
+  .createIndex({ slot: 1 }, { unique: true, partialFilterExpression: { cancelled: false } });
 
 await mongoose.disconnect();
 console.log("gata");

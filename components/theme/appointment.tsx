@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { rowClasses, sectionClasses } from "@/lib/theme-classes.mjs";
 import { bookingTypes, doctors, hoursFor, phonePattern } from "@/lib/site";
 import { sectionId } from "@/lib/slugs.mjs";
@@ -30,7 +30,26 @@ export function Appointment() {
   const [date, setDate] = useState("");
   const [dateType, setDateType] = useState<"text" | "date">("text");
 
-  const hours = hoursFor(date ? new Date(`${date}T12:00:00`) : new Date());
+  // intervalele deja ocupate în ziua aleasă (fără date despre pacienți), ca să nu mai fie oferite
+  const [ocupate, setOcupate] = useState<{ data: string; ore: string[] }>({ data: "", ore: [] });
+  const [reincarca, setReincarca] = useState(0);
+  useEffect(() => {
+    if (!date) return;
+    let anulat = false;
+    fetch(`/api/programare/ocupate?data=${date}`)
+      .then((r) => r.json())
+      .then((d: { ocupate?: string[] }) => !anulat && setOcupate({ data: date, ore: d.ocupate ?? [] }))
+      .catch(() => {});
+    return () => {
+      anulat = true;
+    };
+  }, [date, reincarca]);
+
+  // azi: doar intervalele care n-au trecut (ora României)
+  const acum = new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Bucharest", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(new Date());
+  const hours = hoursFor(date ? new Date(`${date}T12:00:00`) : new Date()).filter(
+    (h) => !(ocupate.data === date && ocupate.ore.includes(h)) && !(date === todayIso() && h <= acum),
+  );
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -57,6 +76,8 @@ export function Appointment() {
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
         setStatus({ kind: "error", message: data.message || "A apărut o eroare. Încearcă din nou." });
+        // intervalul a fost luat între timp: reîncărcăm orele libere
+        if (res.status === 409) setReincarca((n) => n + 1);
         return;
       }
       setStatus({ kind: "sent" });
@@ -132,7 +153,8 @@ export function Appointment() {
             </div>
 
             <div className="mt-4 pb-2 md:w-1/6">
-              <select name="hour" required defaultValue="09:00" key={hours.length} className={select}>
+              <select name="hour" required defaultValue={hours[0]} key={`${date}-${hours.join()}`} className={select}>
+                {date && hours.length === 0 && <option value="">Nicio oră liberă</option>}
                 {hours.map((h) => (
                   <option key={h} value={h}>
                     {h}

@@ -5,6 +5,7 @@ import { sendBookingEmails } from "@/lib/email";
 import { Booking } from "@/lib/models";
 import { bookingTypes, doctors, hoursFor, phonePattern } from "@/lib/site";
 import { bucharestToUtc } from "@/lib/time";
+import { isDuplicateSlot, slotKey, takenSlots } from "@/lib/booking-slots";
 
 const schema = z.object({
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Alege o dată validă."),
@@ -46,18 +47,29 @@ export async function POST(req: Request) {
     );
   }
 
+  const ocupat = { message: "Intervalul ales tocmai a fost ocupat. Alege altă oră.", errors: { hour: "Interval ocupat." } };
+  if ((await takenSlots(d.date)).includes(d.hour)) return NextResponse.json(ocupat, { status: 409 });
+
   await connectDb();
-  const booking = await Booking.create({
+  let booking;
+  try {
+    booking = await Booking.create({
     bookingTypeId: d.bookingType,
     bookingTypeTitle: bookingTypes.find((t) => t.id === d.bookingType)!.title,
     start,
     end: new Date(start.getTime() + 15 * 60_000),
+    slot: slotKey(d.date, d.hour),
     name: d.name,
     phone: d.phone,
     email: d.email,
     doctor: d.doctor,
     message: d.message,
-  });
+    });
+  } catch (e) {
+    // doi pacienți au trimis aproape simultan pe același interval
+    if (isDuplicateSlot(e)) return NextResponse.json(ocupat, { status: 409 });
+    throw e;
+  }
 
   await sendBookingEmails(booking.toObject());
 

@@ -6,6 +6,7 @@ import { connectDb } from "@/lib/db";
 import { Booking } from "@/lib/models";
 import { bookingTypes, doctors, hoursFor } from "@/lib/site";
 import { bucharestToUtc } from "@/lib/time";
+import { isDuplicateSlot, slotKey, takenSlots } from "@/lib/booking-slots";
 
 const DATA_RE = /^\d{4}-\d{2}-\d{2}$/;
 const ORA_RE = /^([01]\d|2[0-3]):[0-5]\d$/;
@@ -50,13 +51,19 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "medic_invalid", message: "Medicul ales nu există." }, { status: 400 });
     }
 
+    const ocupat = { error: "ora_ocupata", message: "Intervalul e deja ocupat. Alege altă oră." };
+    if ((await takenSlots(data)).includes(ora)) return NextResponse.json(ocupat, { status: 409 });
+
     await connectDb();
     const start = bucharestToUtc(data, ora);
-    const creata = await Booking.create({
+    let creata;
+    try {
+      creata = await Booking.create({
       bookingTypeId: tip.id,
       bookingTypeTitle: tip.title,
       start,
       end: new Date(start.getTime() + 15 * 60_000),
+      slot: slotKey(data, ora),
       confirmed: true,
       source: "admin",
       name: nume,
@@ -64,7 +71,11 @@ export async function POST(request: NextRequest) {
       email: email ?? "",
       doctor: medic ?? "",
       message: mesaj ?? "",
-    });
+      });
+    } catch (e) {
+      if (isDuplicateSlot(e)) return NextResponse.json(ocupat, { status: 409 });
+      throw e;
+    }
     return NextResponse.json({ ok: true, id: String(creata._id) });
   } catch {
     return NextResponse.json({ error: "DB error" }, { status: 500 });

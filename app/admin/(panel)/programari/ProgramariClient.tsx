@@ -351,7 +351,7 @@ export default function ProgramariClient({ programari: initiale }: { programari:
   );
 }
 
-/** Selector de oră ca în kulttur: orele ocupate apar marcate (dar se pot alege — cabinetul primește mai mulți pacienți pe oră). */
+/** Selector de oră ca în kulttur: intervalele ocupate apar gri și nu se pot alege (o consultație = 15 minute). */
 function SelectOra({
   valoare,
   ore,
@@ -393,19 +393,22 @@ function SelectOra({
       {deschis && (
         <div className="absolute left-0 top-[calc(100%+4px)] z-10 max-h-64 w-full overflow-y-auto rounded-lg border border-gray-200 bg-white p-1.5 shadow-lg">
           {ore.map((o) => {
-            const cate = luate.filter((x) => x === o).length;
+            const ocupata = luate.includes(o);
             const eTrecuta = trecute.includes(o);
             const aleasa = o === valoare;
             return (
               <button
                 key={o}
                 type="button"
+                disabled={ocupata}
                 onClick={() => {
                   onAlege(o);
                   setDeschis(false);
                 }}
                 className={`flex w-full items-center justify-between rounded px-3 py-2 text-sm transition-colors ${
-                  aleasa
+                  ocupata
+                    ? "cursor-default text-gray-300"
+                    : aleasa
                     ? eTrecuta
                       ? "bg-gray-200 font-semibold text-gray-700"
                       : "bg-accent/15 font-semibold text-[#1e7e34]"
@@ -414,9 +417,9 @@ function SelectOra({
                       : "text-gray-700 hover:bg-gray-50"
                 }`}
               >
-                <span className={eTrecuta ? "line-through decoration-gray-300" : ""}>{o}</span>
-                {cate > 0 ? (
-                  <span className="text-xs text-amber-700">{cate === 1 ? "1 programare" : `${cate} programări`}</span>
+                <span className={eTrecuta && !ocupata ? "line-through decoration-gray-300" : ""}>{o}</span>
+                {ocupata ? (
+                  <span className="text-xs">ocupat</span>
                 ) : eTrecuta ? (
                   <span className="text-xs text-gray-400">a trecut</span>
                 ) : null}

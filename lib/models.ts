@@ -6,6 +6,8 @@ const bookingSchema = new Schema(
     bookingTypeId: { type: Number, required: true },
     bookingTypeTitle: { type: String, required: true },
     start: { type: Date, required: true, index: true },
+    // „YYYY-MM-DD HH:MM" pe ora României: un interval nu poate fi ocupat de două programări active
+    slot: { type: String, required: true },
     end: { type: Date, required: true },
     confirmed: { type: Boolean, default: false },
     // anulată din admin (rămâne în evidență, dar nu mai ocupă ora)
@@ -21,6 +23,8 @@ const bookingSchema = new Schema(
   },
   { timestamps: true },
 );
+
+bookingSchema.index({ slot: 1 }, { unique: true, partialFilterExpression: { cancelled: false } });
 
 const messageSchema = new Schema(
   {
