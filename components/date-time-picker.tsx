@@ -311,7 +311,7 @@ export function DateTimePicker({
                   </>
                 ) : (
                   <>
-                    <strong className="first-letter:uppercase">{ziLunga(zi)}</strong>, ora {ora} — alege minutele și apasă Confirmă.
+                    Gata. Poți schimba minutele sau apasă <strong>Confirmă</strong>.
                   </>
                 )}
               </span>
