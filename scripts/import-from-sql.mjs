@@ -100,6 +100,30 @@ function slugFromLink(link) {
 }
 
 const unknownClasses = new Set();
+// Modificări de conținut cerute de cabinet după migrare, aplicate pe HTML-ul original (înainte de conversie),
+// ca să primească exact aceleași clase ca restul paginii.
+const LABIB = `<!-- Dr. Mahdi Labib -->
+
+<div class="col-lg-6" data-aos="fade-up" data-aos-delay="400">
+<div class="team-member d-flex align-items-start">
+<div class="pic"><img alt="Dr. Mahdi Labib" class="img-fluid" src="/theme/JoyOptic/assets/img/doctors/doctor-man-icon.png" /></div>
+
+<div class="member-info">
+<h4>Dr. Mahdi Labib</h4>
+<span>Medic primar</span>
+</div>
+</div>
+</div>
+`;
+
+function patchContent(slug, html) {
+  if (slug === "doctors" && !html.includes("Mahdi Labib")) {
+    // al patrulea medic (2026-10-09), după Dr. Popteanu; cu 6 carduri ultimul nu mai e centrat singur pe rând
+    html = html.replace("<!-- MUNTEANU Denisa -->", `${LABIB}<!-- MUNTEANU Denisa -->`).replace("col-lg-6 offset-lg-3", "col-lg-6");
+  }
+  return html;
+}
+
 function cleanHtml(html) {
   const r = convertThemeHtml(html);
   r.unknown.forEach((c) => unknownClasses.add(c));
@@ -117,7 +141,7 @@ function transform(t) {
       slug: pageSlugs[n.slug] ?? n.slug,
       legacySlug: n.slug,
       title: n.title,
-      bodyHtml: cleanHtml(n.body),
+      bodyHtml: cleanHtml(patchContent(n.slug, n.body)),
       legacyBodyHtml: n.body,
       excerpt: n.excerpt || "",
       published: n.status === 1,
