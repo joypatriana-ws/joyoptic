@@ -15,6 +15,9 @@ export const metadata: Metadata = {
   description: "Optică Medicală și Oftalmologie",
   keywords: "joy optic",
   robots: "index, follow",
+  // imaginea vine din app/opengraph-image.tsx
+  openGraph: { type: "website", locale: "ro_RO", siteName: site.name },
+  twitter: { card: "summary_large_image" },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
