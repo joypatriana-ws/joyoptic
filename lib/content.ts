@@ -1,5 +1,5 @@
 import { connectDb } from "./db";
-import { Page, Post } from "./models";
+import { Block, Page, Post } from "./models";
 
 export type ContentItem = {
   legacyId?: number;
@@ -15,7 +15,7 @@ export type ContentItem = {
   updatedAt?: Date | string;
 };
 
-type Preview = { pages: ContentItem[]; posts: ContentItem[] };
+type Preview = { pages: ContentItem[]; posts: ContentItem[]; blocks?: { alias: string; active: boolean }[] };
 
 // Fără MONGODB_URI (local, înainte de import) citim previzualizarea importului: output/import-preview.json.
 async function preview(): Promise<Preview | null> {
@@ -51,6 +51,15 @@ export async function getPost(slug: string): Promise<ContentItem | null> {
   if (p) return p.posts.find((x) => x.slug === slug && x.published) ?? null;
   await connectDb();
   return Post.findOne({ slug, published: true }).lean<ContentItem>();
+}
+
+/** Un bloc Croogo e activ? (ex. „special-offers": secțiunea de oferte și linkul ei din meniu) */
+export async function isBlockActive(alias: string): Promise<boolean> {
+  const p = await preview();
+  if (p) return p.blocks?.find((b) => b.alias === alias)?.active ?? false;
+  await connectDb();
+  const block = await Block.findOne({ alias }).lean<{ active: boolean }>();
+  return block?.active ?? false;
 }
 
 /** Textul simplu dintr-un fragment HTML, pentru descrieri meta. */

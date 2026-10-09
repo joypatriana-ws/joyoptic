@@ -205,7 +205,12 @@ function transform(t) {
     createdAt: date(m.created),
   }));
 
-  return { pages, posts, menus, contact, bookingTypes, bookings, messages };
+  // Blocurile Croogo: contează doar dacă sunt active (ex. special-offers → secțiunea „Oferte Speciale").
+  const blocks = t.blocks
+    .filter((b) => b.alias === "special-offers")
+    .map((b) => ({ alias: b.alias, title: b.title, active: b.status === 1 }));
+
+  return { pages, posts, menus, contact, bookingTypes, bookings, messages, blocks };
 }
 
 // ---------- rulare ----------
@@ -243,6 +248,7 @@ const upsertAll = async (coll, docs, key = "legacyId") => {
 };
 
 await upsertAll("pages", data.pages);
+await upsertAll("blocks", data.blocks, "alias");
 await upsertAll("posts", data.posts);
 await upsertAll("menus", data.menus, "alias");
 await db

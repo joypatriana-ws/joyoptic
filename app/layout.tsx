@@ -6,6 +6,7 @@ import { Header } from "@/components/theme/header";
 import { Preloader } from "@/components/theme/preloader";
 import { ScrollTop } from "@/components/theme/scroll-top";
 import { ThemeScripts } from "@/components/theme/theme-scripts";
+import { isBlockActive } from "@/lib/content";
 import { site } from "@/lib/site";
 import "./globals.css";
 
@@ -23,11 +24,14 @@ export const metadata: Metadata = {
   robots: "index, follow",
 };
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  // linkul „Oferte" din meniu apare doar când secțiunea de oferte e activă
+  const showOffers = await isBlockActive("special-offers");
+
   return (
     <html lang="ro" className={`${roboto.variable} ${poppins.variable} ${raleway.variable}`}>
       <body className="index-page">
-        <Header />
+        <Header showOffers={showOffers} />
         <main className="main">
           <Flash />
           {children}

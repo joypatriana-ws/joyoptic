@@ -57,6 +57,15 @@ const postSchema = new Schema(
   { timestamps: true },
 );
 
+const blockSchema = new Schema(
+  {
+    alias: { type: String, required: true, unique: true },
+    title: { type: String, default: "" },
+    active: { type: Boolean, default: false },
+  },
+  { timestamps: true },
+);
+
 export type BookingDoc = InferSchemaType<typeof bookingSchema> & { _id: mongoose.Types.ObjectId };
 export type MessageDoc = InferSchemaType<typeof messageSchema> & { _id: mongoose.Types.ObjectId };
 export type PageDoc = InferSchemaType<typeof pageSchema> & { _id: mongoose.Types.ObjectId };
@@ -75,3 +84,6 @@ export const Page =
 export const Post =
   (mongoose.models.Post as Model<InferSchemaType<typeof postSchema>>) ??
   mongoose.model("Post", postSchema);
+export const Block =
+  (mongoose.models.Block as Model<InferSchemaType<typeof blockSchema>>) ??
+  mongoose.model("Block", blockSchema);

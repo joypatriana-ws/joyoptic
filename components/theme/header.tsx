@@ -11,10 +11,11 @@ import { pagePath, sectionId } from "@/lib/slugs.mjs";
  * și Layouts/default.ctp (celelalte pagini, meniul „main" din Croogo).
  * Comportamentele din main.js: .scrolled după 100px, meniul mobil, scrollspy.
  */
-export function Header() {
+export function Header({ showOffers }: { showOffers: boolean }) {
   const pathname = usePathname();
   const isHome = pathname === "/";
-  const menu = isHome ? homeMenu : mainMenu;
+  const offersHref = `#${sectionId("special-offers")}`;
+  const menu = isHome ? homeMenu.filter((l) => showOffers || l.href !== offersHref) : mainMenu;
 
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
