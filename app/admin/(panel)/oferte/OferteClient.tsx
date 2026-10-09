@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Check, Plus, Trash2 } from "lucide-react";
+import { Select } from "@/components/custom-select";
 
 type Oferta = { media: string; title: string; html: string };
 
@@ -97,13 +98,14 @@ export default function OferteClient({ activ: initialActiv, oferte: initiale }: 
               </label>
               <label className="block">
                 <span className={eticheta}>Iconiță</span>
-                <select value={o.media} onChange={(e) => schimba(i, "media", e.target.value)} className={camp}>
-                  {ICONITE.map((ic) => (
-                    <option key={ic.src} value={ic.src}>
-                      {ic.nume}
-                    </option>
-                  ))}
-                </select>
+                <Select
+                  name={`media-${i}`}
+                  value={o.media}
+                  onChange={(v) => schimba(i, "media", v)}
+                  placeholder="Alege iconița"
+                  options={ICONITE.map((ic) => ({ value: ic.src, label: ic.nume }))}
+                  buttonClassName={camp}
+                />
               </label>
               <label className="block sm:col-span-2">
                 <span className={eticheta}>Text</span>

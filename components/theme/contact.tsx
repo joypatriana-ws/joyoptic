@@ -4,6 +4,7 @@ import { useState } from "react";
 import { rowClasses, sectionClasses } from "@/lib/theme-classes.mjs";
 import { contactSubjects, phonePattern, site } from "@/lib/site";
 import { sectionId } from "@/lib/slugs.mjs";
+import { Select } from "@/components/custom-select";
 import { SectionTitle } from "./section-title";
 import { contactField, formControl, formError, formLoading, formSent, validated } from "./form-classes";
 
@@ -19,6 +20,7 @@ const infoP = "mb-0 p-0 text-[14px]";
 export function Contact() {
   const [status, setStatus] = useState<Status>({ kind: "idle" });
   const [validatedForm, setValidatedForm] = useState(false);
+  const [subject, setSubject] = useState("");
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -44,6 +46,7 @@ export function Contact() {
       }
       setStatus({ kind: "sent" });
       setValidatedForm(false);
+      setSubject("");
       form.reset();
     } catch {
       setStatus({ kind: "error", message: "Eroare de conexiune. Încearcă din nou." });
@@ -120,14 +123,15 @@ export function Contact() {
                   <input name="email" type="email" placeholder="Email" required className={text} />
                 </div>
                 <div className="md:w-1/2">
-                  <select name="subject" required defaultValue="" className={bootstrapField}>
-                    <option value="">Alege un subiect</option>
-                    {contactSubjects.map((s) => (
-                      <option key={s.value} value={s.value}>
-                        {s.label}
-                      </option>
-                    ))}
-                  </select>
+                  <Select
+                    name="subject"
+                    required
+                    value={subject}
+                    onChange={setSubject}
+                    placeholder="Alege un subiect"
+                    options={contactSubjects}
+                    buttonClassName={`${formControl} group-data-validated/form:peer-invalid:border-[#dc3545] group-data-validated/form:peer-valid:border-[#198754]`}
+                  />
                 </div>
                 <div className="md:w-1/2">
                   <input

@@ -3,9 +3,10 @@
 // După ProgramariClient din kulttur: calendar lunar + ziua aleasă + detalii cu starea,
 // adaptat pentru cabinet (tip consultație, medic, programul 09–19 / sâmbătă 09–12).
 
-import { useEffect, useMemo, useRef, useState, useTransition } from "react";
-import { Ban, Check, ChevronDown, ChevronLeft, ChevronRight, Clock, Mail, Phone, Plus, RotateCcw, Trash2, X } from "lucide-react";
+import { useMemo, useState, useTransition } from "react";
+import { Ban, Check, ChevronLeft, ChevronRight, Clock, Mail, Phone, Plus, RotateCcw, Trash2, X } from "lucide-react";
 import ConfirmModal from "@/components/admin/ConfirmModal";
+import { Select, TimeSelect } from "@/components/custom-select";
 import { bookingTypes, doctors, hoursFor } from "@/lib/site";
 
 export type Programare = {
@@ -351,87 +352,6 @@ export default function ProgramariClient({ programari: initiale }: { programari:
   );
 }
 
-/** Selector de oră ca în kulttur: intervalele ocupate apar gri și nu se pot alege (o consultație = 15 minute). */
-function SelectOra({
-  valoare,
-  ore,
-  luate,
-  trecute,
-  onAlege,
-}: {
-  valoare: string;
-  ore: string[];
-  luate: string[];
-  trecute: string[];
-  onAlege: (o: string) => void;
-}) {
-  const [deschis, setDeschis] = useState(false);
-  const wrap = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!deschis) return;
-    const inAfara = (e: MouseEvent) => {
-      if (wrap.current && !wrap.current.contains(e.target as Node)) setDeschis(false);
-    };
-    document.addEventListener("mousedown", inAfara);
-    return () => document.removeEventListener("mousedown", inAfara);
-  }, [deschis]);
-
-  return (
-    <div ref={wrap} className="relative">
-      <button
-        type="button"
-        onClick={() => setDeschis((d) => !d)}
-        className={`mt-1 flex w-full items-center justify-between rounded-lg border px-3 py-2 text-sm transition-colors ${
-          deschis ? "border-accent" : "border-gray-200 hover:border-gray-300"
-        } ${valoare ? "text-gray-900" : "text-gray-400"}`}
-      >
-        <span>{valoare || "Alege ora"}</span>
-        <ChevronDown size={15} className={`shrink-0 text-gray-400 transition-transform ${deschis ? "rotate-180" : ""}`} />
-      </button>
-
-      {deschis && (
-        <div className="absolute left-0 top-[calc(100%+4px)] z-10 max-h-64 w-full overflow-y-auto rounded-lg border border-gray-200 bg-white p-1.5 shadow-lg">
-          {ore.map((o) => {
-            const ocupata = luate.includes(o);
-            const eTrecuta = trecute.includes(o);
-            const aleasa = o === valoare;
-            return (
-              <button
-                key={o}
-                type="button"
-                disabled={ocupata}
-                onClick={() => {
-                  onAlege(o);
-                  setDeschis(false);
-                }}
-                className={`flex w-full items-center justify-between rounded px-3 py-2 text-sm transition-colors ${
-                  ocupata
-                    ? "cursor-default text-gray-300"
-                    : aleasa
-                    ? eTrecuta
-                      ? "bg-gray-200 font-semibold text-gray-700"
-                      : "bg-accent/15 font-semibold text-[#1e7e34]"
-                    : eTrecuta
-                      ? "text-gray-500 hover:bg-gray-50"
-                      : "text-gray-700 hover:bg-gray-50"
-                }`}
-              >
-                <span className={eTrecuta && !ocupata ? "line-through decoration-gray-300" : ""}>{o}</span>
-                {ocupata ? (
-                  <span className="text-xs">ocupat</span>
-                ) : eTrecuta ? (
-                  <span className="text-xs text-gray-400">a trecut</span>
-                ) : null}
-              </button>
-            );
-          })}
-        </div>
-      )}
-    </div>
-  );
-}
-
 /** Programare luată la telefon sau la cabinet. Se salvează direct confirmată. */
 function ProgramareNouaModal({
   data,
@@ -513,7 +433,15 @@ function ProgramareNouaModal({
         <div className="space-y-3 p-5">
           <div>
             <span className={eticheta}>Ora *</span>
-            <SelectOra valoare={ora} ore={oreleZilei(data)} luate={oreLuate} trecute={oreTrecute} onAlege={setOra} />
+            <TimeSelect
+              name="ora"
+              slots={oreleZilei(data).filter((o) => !oreLuate.includes(o))}
+              value={ora}
+              onChange={setOra}
+              placeholder="Alege ora"
+              emptyText="Nu mai e niciun interval liber în ziua asta."
+              buttonClassName={camp}
+            />
           </div>
 
           {alegeRetroactiv && (
@@ -527,25 +455,26 @@ function ProgramareNouaModal({
 
           <label className="block">
             <span className={eticheta}>Tipul consultației *</span>
-            <select value={tip} onChange={(e) => setTip(e.target.value)} className={camp}>
-              {bookingTypes.map((t) => (
-                <option key={t.id} value={t.id}>
-                  {t.title}
-                </option>
-              ))}
-            </select>
+            <Select
+              name="tip"
+              value={tip}
+              onChange={setTip}
+              placeholder="Alege tipul"
+              options={bookingTypes.map((t) => ({ value: String(t.id), label: t.title }))}
+              buttonClassName={camp}
+            />
           </label>
 
           <label className="block">
             <span className={eticheta}>Medic</span>
-            <select value={medic} onChange={(e) => setMedic(e.target.value)} className={camp}>
-              <option value="">—</option>
-              {doctors.map((d) => (
-                <option key={d.name} value={d.name}>
-                  {d.name} - {d.specialization}
-                </option>
-              ))}
-            </select>
+            <Select
+              name="medic"
+              value={medic}
+              onChange={setMedic}
+              placeholder="—"
+              options={[{ value: "", label: "—" }, ...doctors.map((d) => ({ value: d.name, label: `${d.name} - ${d.specialization}` }))]}
+              buttonClassName={camp}
+            />
           </label>
 
           <label className="block">
