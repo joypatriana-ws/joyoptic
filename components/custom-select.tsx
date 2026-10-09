@@ -4,22 +4,17 @@
 // Valoarea ajunge în formular printr-un <input> ascuns vizual, dar validat (required) ca orice câmp:
 // așa merg și FormData, și checkValidity(), și stilul de eroare (peer-invalid).
 
-import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
+import { useId, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
+import { Floating, useOutsideClose } from "./floating";
 
 export type Option = { value: string; label: string };
 
-/** Închide popover-ul la click în afara lui sau la Escape. */
-function useClose(open: boolean, close: () => void) {
+/** Câmpul + panoul lui (în portal); închide la click în afara amândurora. */
+function useDropdown(open: boolean, close: () => void) {
   const wrap = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    if (!open) return;
-    const onDown = (e: MouseEvent) => {
-      if (wrap.current && !wrap.current.contains(e.target as Node)) close();
-    };
-    document.addEventListener("mousedown", onDown);
-    return () => document.removeEventListener("mousedown", onDown);
-  }, [open, close]);
-  return wrap;
+  const panel = useRef<HTMLDivElement>(null);
+  useOutsideClose(open, [wrap, panel], close);
+  return { wrap, panel };
 }
 
 const chevron = (
@@ -69,7 +64,7 @@ export function Select({
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(0);
   const listId = useId();
-  const wrap = useClose(open, () => setOpen(false));
+  const { wrap, panel } = useDropdown(open, () => setOpen(false));
   const buttonRef = useRef<HTMLButtonElement>(null);
   const selected = options.find((o) => o.value === value);
 
@@ -130,11 +125,12 @@ export function Select({
       </button>
 
       {open && (
-        <ul
-          id={listId}
-          role="listbox"
-          className="absolute left-0 top-[calc(100%+4px)] z-30 m-0 max-h-72 w-full min-w-48 list-none overflow-y-auto rounded-md border border-black/10 bg-white p-1 shadow-[0_8px_24px_rgba(0,0,0,0.12)]"
-        >
+        <Floating anchor={wrap} panelRef={panel} matchWidth>
+          <ul
+            id={listId}
+            role="listbox"
+            className="m-0 max-h-72 min-w-48 list-none overflow-y-auto rounded-md border border-black/10 bg-white p-1 shadow-[0_8px_24px_rgba(0,0,0,0.12)]"
+          >
           {options.map((o, i) => (
             <li
               key={o.value}
@@ -150,7 +146,8 @@ export function Select({
               {o.label}
             </li>
           ))}
-        </ul>
+          </ul>
+        </Floating>
       )}
     </div>
   );
@@ -185,7 +182,7 @@ export function TimeSelect({
 }) {
   const [open, setOpen] = useState(false);
   const listId = useId();
-  const wrap = useClose(open, () => setOpen(false));
+  const { wrap, panel } = useDropdown(open, () => setOpen(false));
 
   const ore = new Map<string, string[]>();
   for (const s of slots) ore.set(s.slice(0, 2), [...(ore.get(s.slice(0, 2)) ?? []), s.slice(3)]);
@@ -208,12 +205,15 @@ export function TimeSelect({
       </button>
 
       {open && (
-        <div
+        <Floating
+          anchor={wrap}
+          panelRef={panel}
+          matchWidth
           id={listId}
           role="dialog"
-          aria-label="Alege ora"
+          label="Alege ora"
           onKeyDown={(e) => e.key === "Escape" && setOpen(false)}
-          className="absolute left-0 top-[calc(100%+4px)] z-30 max-h-80 w-max min-w-full overflow-y-auto rounded-md border border-black/10 bg-white p-2 shadow-[0_8px_24px_rgba(0,0,0,0.12)]"
+          className="max-h-80 w-max overflow-y-auto rounded-md border border-black/10 bg-white p-2 shadow-[0_8px_24px_rgba(0,0,0,0.12)]"
         >
           {ore.size === 0 ? (
             <div className="px-2 py-3 text-[14px] text-body/60">{emptyText}</div>
@@ -246,7 +246,7 @@ export function TimeSelect({
             ))
           )}
           {footer}
-        </div>
+        </Floating>
       )}
     </div>
   );

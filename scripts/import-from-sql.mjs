@@ -295,10 +295,13 @@ await upsertAll(
   })),
 );
 await upsertAll("messages", data.messages);
-// un interval (15 min) nu poate avea două programări active
-await db
-  .collection("bookings")
-  .createIndex({ slot: 1 }, { unique: true, partialFilterExpression: { cancelled: false } });
+// fiecare departament are programările lui: un interval (15 min) nu poate avea două programări active în același departament
+const bookingsColl = db.collection("bookings");
+if ((await bookingsColl.indexes()).some((i) => i.name === "slot_1")) await bookingsColl.dropIndex("slot_1");
+await bookingsColl.createIndex(
+  { bookingTypeId: 1, slot: 1 },
+  { unique: true, partialFilterExpression: { cancelled: false }, name: "departament_interval" },
+);
 
 await mongoose.disconnect();
 console.log("gata");

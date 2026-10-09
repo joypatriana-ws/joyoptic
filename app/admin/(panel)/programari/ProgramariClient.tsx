@@ -17,6 +17,7 @@ export type Programare = {
   data: string; // YYYY-MM-DD, ora României
   ora: string; // HH:MM
   tip: string;
+  tipId: number;
   medic: string | null;
   mesaj: string | null;
   confirmata: boolean;
@@ -319,7 +320,7 @@ export default function ProgramariClient({ programari: initiale }: { programari:
       {adauga && ziAleasa && (
         <ProgramareNouaModal
           data={ziAleasa}
-          oreLuate={aleseZi.filter((p) => !p.anulata).map((p) => p.ora)}
+          luate={aleseZi.filter((p) => !p.anulata).map((p) => ({ ora: p.ora, tipId: p.tipId }))}
           onInchide={() => setAdauga(false)}
           onSalvat={() => {
             setAdauga(false);
@@ -355,12 +356,13 @@ export default function ProgramariClient({ programari: initiale }: { programari:
 /** Programare luată la telefon sau la cabinet. Se salvează direct confirmată. */
 function ProgramareNouaModal({
   data,
-  oreLuate,
+  luate,
   onInchide,
   onSalvat,
 }: {
   data: string;
-  oreLuate: string[];
+  /** programările active ale zilei; fiecare departament are programările lui */
+  luate: { ora: string; tipId: number }[];
   onInchide: () => void;
   onSalvat: () => void;
 }) {
@@ -373,6 +375,7 @@ function ProgramareNouaModal({
   const [mesaj, setMesaj] = useState("");
   const [trimite, setTrimite] = useState(false);
   const [eroare, setEroare] = useState<string | null>(null);
+  const oreLuate = luate.filter((l) => String(l.tipId) === tip).map((l) => l.ora);
 
   const dataLunga = new Date(`${data}T00:00:00`).toLocaleDateString("ro-RO", {
     weekday: "long",
@@ -458,7 +461,10 @@ function ProgramareNouaModal({
             <Select
               name="tip"
               value={tip}
-              onChange={setTip}
+              onChange={(v) => {
+                setTip(v);
+                if (luate.some((l) => String(l.tipId) === v && l.ora === ora)) setOra("");
+              }}
               placeholder="Alege tipul"
               options={bookingTypes.map((t) => ({ value: String(t.id), label: t.title }))}
               buttonClassName={camp}

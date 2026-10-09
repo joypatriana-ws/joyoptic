@@ -6,7 +6,7 @@ const bookingSchema = new Schema(
     bookingTypeId: { type: Number, required: true },
     bookingTypeTitle: { type: String, required: true },
     start: { type: Date, required: true, index: true },
-    // „YYYY-MM-DD HH:MM" pe ora României: un interval nu poate fi ocupat de două programări active
+    // „YYYY-MM-DD HH:MM" pe ora României; fiecare departament (bookingTypeId) are programările lui
     slot: { type: String, required: true },
     end: { type: Date, required: true },
     confirmed: { type: Boolean, default: false },
@@ -24,7 +24,11 @@ const bookingSchema = new Schema(
   { timestamps: true },
 );
 
-bookingSchema.index({ slot: 1 }, { unique: true, partialFilterExpression: { cancelled: false } });
+// un interval nu poate avea două programări active în același departament (confirmat de cabinet)
+bookingSchema.index(
+  { bookingTypeId: 1, slot: 1 },
+  { unique: true, partialFilterExpression: { cancelled: false }, name: "departament_interval" },
+);
 
 const messageSchema = new Schema(
   {

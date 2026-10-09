@@ -47,8 +47,11 @@ export async function POST(req: Request) {
     );
   }
 
-  const ocupat = { message: "Intervalul ales tocmai a fost ocupat. Alege altă oră.", errors: { hour: "Interval ocupat." } };
-  if ((await takenSlots(d.date)).includes(d.hour)) return NextResponse.json(ocupat, { status: 409 });
+  const ocupat = {
+    message: "Intervalul ales tocmai a fost ocupat în acest departament. Alege altă oră.",
+    errors: { hour: "Interval ocupat." },
+  };
+  if ((await takenSlots(d.date, d.bookingType)).includes(d.hour)) return NextResponse.json(ocupat, { status: 409 });
 
   await connectDb();
   let booking;

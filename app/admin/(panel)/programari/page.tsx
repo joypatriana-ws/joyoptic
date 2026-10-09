@@ -18,6 +18,7 @@ async function iaProgramarile(): Promise<Programare[]> {
       data,
       ora,
       tip: b.bookingTypeTitle,
+      tipId: b.bookingTypeId,
       medic: b.doctor || null,
       mesaj: b.message || null,
       confirmata: Boolean(b.confirmed),

@@ -51,8 +51,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "medic_invalid", message: "Medicul ales nu există." }, { status: 400 });
     }
 
-    const ocupat = { error: "ora_ocupata", message: "Intervalul e deja ocupat. Alege altă oră." };
-    if ((await takenSlots(data)).includes(ora)) return NextResponse.json(ocupat, { status: 409 });
+    const ocupat = { error: "ora_ocupata", message: "Intervalul e deja ocupat în acest departament. Alege altă oră." };
+    if ((await takenSlots(data, tip.id)).includes(ora)) return NextResponse.json(ocupat, { status: 409 });
 
     await connectDb();
     const start = bucharestToUtc(data, ora);

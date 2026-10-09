@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { rowClasses, sectionClasses } from "@/lib/theme-classes.mjs";
 import { bookingTypes, doctors, hoursFor, phonePattern } from "@/lib/site";
 import { sectionId } from "@/lib/slugs.mjs";
-import { Select, TimeSelect } from "@/components/custom-select";
+import { Select } from "@/components/custom-select";
+import { DateTimePicker } from "@/components/date-time-picker";
 import { SectionTitle } from "./section-title";
 import {
   appointmentField,
@@ -27,34 +28,25 @@ const todayIso = () => {
 export function Appointment() {
   const [status, setStatus] = useState<Status>({ kind: "idle" });
   const [validatedForm, setValidatedForm] = useState(false);
-  const [date, setDate] = useState("");
-  const [dateType, setDateType] = useState<"text" | "date">("text");
-  const [hour, setHour] = useState("");
+  const [cand, setCand] = useState({ date: "", hour: "" });
   const [bookingType, setBookingType] = useState("");
   const [doctor, setDoctor] = useState("");
 
-  // intervalele deja ocupate în ziua aleasă (fără date despre pacienți), ca să nu mai fie oferite
-  const [ocupate, setOcupate] = useState<{ data: string; ore: string[] }>({ data: "", ore: [] });
-  const [reincarca, setReincarca] = useState(0);
-  useEffect(() => {
-    if (!date) return;
-    let anulat = false;
-    fetch(`/api/programare/ocupate?data=${date}`)
-      .then((r) => r.json())
-      .then((d: { ocupate?: string[] }) => !anulat && setOcupate({ data: date, ore: d.ocupate ?? [] }))
-      .catch(() => {});
-    return () => {
-      anulat = true;
-    };
-  }, [date, reincarca]);
+  /** Intervalele de program ale zilei; azi, doar cele care n-au trecut (ora României). */
+  const slotsFor = useCallback((date: string) => {
+    const acum = new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Bucharest", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(new Date());
+    return hoursFor(new Date(`${date}T12:00:00`)).filter((h) => !(date === todayIso() && h <= acum));
+  }, []);
 
-  // azi: doar intervalele care n-au trecut (ora României)
-  const acum = new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Bucharest", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(new Date());
-  const hours = hoursFor(date ? new Date(`${date}T12:00:00`) : new Date()).filter(
-    (h) => !(ocupate.data === date && ocupate.ore.includes(h)) && !(date === todayIso() && h <= acum),
+  /** Intervalele deja ocupate (doar orele, fără date despre pacienți). */
+  // fiecare departament are programările lui, deci orele ocupate se cer pentru departamentul ales
+  const takenFor = useCallback(
+    (date: string) =>
+      fetch(`/api/programare/ocupate?data=${date}&tip=${bookingType}`)
+        .then((r) => r.json())
+        .then((d: { ocupate?: string[] }) => d.ocupate ?? []),
+    [bookingType],
   );
-  // ora aleasă dispare dacă se schimbă ziua sau intervalul a fost ocupat între timp
-  const hourValue = date && hours.includes(hour) ? hour : "";
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -63,8 +55,6 @@ export function Appointment() {
 
     const phone = form.elements.namedItem("phone") as HTMLInputElement;
     phone.setCustomValidity(phonePattern.test(phone.value.trim()) ? "" : "Număr de telefon invalid");
-    const dateInput = form.elements.namedItem("date") as HTMLInputElement;
-    dateInput.setCustomValidity(date && new Date(`${date}T12:00:00`).getDay() === 0 ? "Duminica este închis" : "");
 
     if (!form.checkValidity()) {
       setValidatedForm(true);
@@ -81,17 +71,15 @@ export function Appointment() {
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
         setStatus({ kind: "error", message: data.message || "A apărut o eroare. Încearcă din nou." });
-        // intervalul a fost luat între timp: reîncărcăm orele libere
-        if (res.status === 409) setReincarca((n) => n + 1);
+        // intervalul a fost luat între timp: golim ora, ca pacientul să aleagă alta (pickerul recitește orele ocupate)
+        if (res.status === 409) setCand((c) => ({ ...c, hour: "" }));
         return;
       }
       setStatus({ kind: "sent" });
       form.reset();
-      setDate("");
-      setHour("");
+      setCand({ date: "", hour: "" });
       setBookingType("");
       setDoctor("");
-      setDateType("text");
       setValidatedForm(false);
       setTimeout(() => setStatus((s) => (s.kind === "sent" ? { kind: "idle" } : s)), 5000);
     } catch {
@@ -139,49 +127,33 @@ export function Appointment() {
           </div>
 
           <div className={rowClasses()}>
-            <div className="mt-4 pb-2 md:w-1/6">
-              {/* bootstrap-datepicker: câmp text „Selectează data", de azi încolo, fără duminici */}
-              <input
-                name="date"
-                type={dateType}
-                placeholder="Selectează data"
-                required
-                min={todayIso()}
-                value={date}
-                onFocus={(e) => {
-                  setDateType("date");
-                  requestAnimationFrame(() => e.target.showPicker?.());
-                }}
-                onBlur={() => !date && setDateType("text")}
-                onChange={(e) => {
-                  e.currentTarget.setCustomValidity("");
-                  setDate(e.target.value);
-                }}
-                className={field}
-              />
-            </div>
-
-            <div className="mt-4 pb-2 md:w-1/6">
-              <TimeSelect
-                name="hour"
-                required
-                slots={date ? hours : []}
-                value={hourValue}
-                onChange={setHour}
-                placeholder="Ora"
-                emptyText={date ? "Nicio oră liberă în ziua aleasă." : "Alege întâi data."}
-                buttonClassName={select}
-              />
-            </div>
 
             <div className="mt-4 pb-2 md:w-1/3">
               <Select
                 name="bookingType"
                 required
                 value={bookingType}
-                onChange={setBookingType}
+                onChange={(v) => {
+                  setBookingType(v);
+                  // ora aleasă era liberă în alt departament: se alege din nou
+                  if (v !== bookingType) setCand((c) => ({ ...c, hour: "" }));
+                }}
                 placeholder="Selectează departamentul"
                 options={bookingTypes.map((t) => ({ value: String(t.id), label: t.title }))}
+                buttonClassName={select}
+              />
+            </div>
+            <div className="mt-4 pb-2 md:w-1/3">
+              {/* data și ora într-un singur câmp (în locul bootstrap-datepicker + select-ul de oră);
+                  orele libere depind de departament, deci se alege după el */}
+              <DateTimePicker
+                required
+                value={cand}
+                onChange={setCand}
+                slotsFor={slotsFor}
+                takenFor={takenFor}
+                disabled={!bookingType}
+                disabledText="Alege întâi departamentul"
                 buttonClassName={select}
               />
             </div>
