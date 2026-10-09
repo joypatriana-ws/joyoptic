@@ -1,5 +1,6 @@
 // Template-urile de email din tema JoyOptic (Emails/html/*.ctp), cu același HTML și aceleași stiluri.
 
+// culorile temei: accent #28a745 (--color-accent din globals.css)
 const h = (s: unknown) =>
   String(s ?? "")
     .replace(/&/g, "&amp;")
@@ -23,7 +24,7 @@ const ADMIN_STYLE = `
             margin: auto;
         }
         h2 {
-            color: #d9534f;
+            color: #28a745;
             text-align: center;
         }
         .details {
@@ -77,7 +78,7 @@ export function adminBookingHtml(b: BookingData) {
         </div>
 
         <div class="footer">
-            <p>&copy; 2025 JoyOptic</p>
+            <p>&copy; ${new Date().getFullYear()} JoyOptic</p>
         </div>
     </div>
 </body>
@@ -110,11 +111,11 @@ export function userBookingHtml(b: BookingData & { confirmUrl: string }) {
         }
         h1 {
             text-align: center;
-            color: #0056b3;
+            color: #28a745;
         }
         .details {
             padding: 15px;
-            background: #e9f5ff;
+            background: #eaf6ec;
             border-radius: 5px;
             margin-top: 10px;
         }
@@ -152,7 +153,7 @@ export function userBookingHtml(b: BookingData & { confirmUrl: string }) {
         </p>
 
         <div class="footer">
-            <p>&copy; 2025 JoyOptic - Toate drepturile rezervate.</p>
+            <p>&copy; ${new Date().getFullYear()} JoyOptic - Toate drepturile rezervate.</p>
         </div>
     </div>
 </body>
@@ -192,7 +193,7 @@ export function adminMessageHtml(m: {
         </div>
 
         <div class="footer">
-            <p>&copy; 2025 JoyOptic</p>
+            <p>&copy; ${new Date().getFullYear()} JoyOptic</p>
         </div>
     </div>
 </body>
