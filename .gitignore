@@ -43,3 +43,4 @@ next-env.d.ts
 # materiale de migrare (dump SQL cu date personale, backup live)
 /migrare
 .DS_Store
+/output
