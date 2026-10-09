@@ -31,6 +31,19 @@ const calendarIcon = (
   </svg>
 );
 
+const calendarCheckIcon = (
+  <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" className="shrink-0 text-accent">
+    <path
+      d="M7 3v3M17 3v3M4 9h16M5 5h14a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zM9 14.5l2 2 4-4"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
 export function DateTimePicker({
   value,
   onChange,
@@ -103,7 +116,7 @@ export function DateTimePicker({
   const celule = Array.from({ length: 42 }, (_, i) => new Date(start.getFullYear(), start.getMonth(), start.getDate() + i));
   const potInapoi = luna > new Date(azi.getFullYear(), azi.getMonth(), 1);
 
-  const text = value.date && value.hour ? `${ziLunga(value.date)}, ora ${value.hour}` : placeholder;
+  const text = value.date && value.hour ? `${ziLunga(value.date)}, ${value.hour}` : placeholder;
 
   return (
     <div ref={wrap} className="relative">
@@ -283,9 +296,12 @@ export function DateTimePicker({
                   <strong className="first-letter:uppercase">{ziLunga(zi)}</strong>, ora {ora} — alege minutul.
                 </>
               ) : (
-                <>
-                  Programare: <strong className="first-letter:uppercase">{ziLunga(zi)}</strong>, ora <strong>{alegere}</strong>
-                </>
+                <span className="inline-flex items-center gap-2">
+                  {calendarCheckIcon}
+                  <span>
+                    Programare: <strong className="first-letter:uppercase">{ziLunga(zi)}</strong>, <strong>{alegere}</strong>
+                  </span>
+                </span>
               )}
             </span>
             <button
