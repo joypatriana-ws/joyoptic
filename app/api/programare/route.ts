@@ -3,18 +3,15 @@ import { z } from "zod";
 import { connectDb } from "@/lib/db";
 import { sendBookingEmails } from "@/lib/email";
 import { Booking } from "@/lib/models";
-import { bookingTypes, doctors, hoursFor, phonePattern } from "@/lib/site";
+import { CONSULTATIE, doctors, hoursFor, phonePattern } from "@/lib/site";
 import { bucharestToUtc } from "@/lib/time";
 import { isDuplicateSlot, slotKey, takenSlots } from "@/lib/booking-slots";
 
 const schema = z.object({
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Alege o dată validă."),
   hour: z.string().regex(/^\d{2}:\d{2}$/, "Alege o oră validă."),
-  bookingType: z.coerce.number().refine((id) => bookingTypes.some((t) => t.id === id), "Alege un departament."),
-  doctor: z
-    .string()
-    .default("")
-    .refine((d) => d === "" || doctors.some((x) => x.name === d), "Alege un medic."),
+  // programările se fac pe medic, deci medicul e obligatoriu
+  doctor: z.string().refine((d) => doctors.some((x) => x.name === d), "Alege medicul."),
   name: z.string().trim().min(1, "Te rugăm să completezi numele."),
   phone: z.string().trim().regex(phonePattern, "Te rugăm să introduci un număr de telefon valid."),
   email: z.string().trim().pipe(z.email("Introduceți o adresă de email validă.")),
@@ -48,17 +45,16 @@ export async function POST(req: Request) {
   }
 
   const ocupat = {
-    message: "Intervalul ales tocmai a fost ocupat în acest departament. Alege altă oră.",
+    message: "Intervalul ales tocmai a fost ocupat la acest medic. Alege altă oră.",
     errors: { hour: "Interval ocupat." },
   };
-  if ((await takenSlots(d.date, d.bookingType)).includes(d.hour)) return NextResponse.json(ocupat, { status: 409 });
+  if ((await takenSlots(d.date, d.doctor)).includes(d.hour)) return NextResponse.json(ocupat, { status: 409 });
 
   await connectDb();
   let booking;
   try {
     booking = await Booking.create({
-    bookingTypeId: d.bookingType,
-    bookingTypeTitle: bookingTypes.find((t) => t.id === d.bookingType)!.title,
+    bookingTypeTitle: CONSULTATIE,
     start,
     end: new Date(start.getTime() + 15 * 60_000),
     slot: slotKey(d.date, d.hour),

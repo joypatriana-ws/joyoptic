@@ -64,7 +64,7 @@ export function DateTimePicker({
   required?: boolean;
   buttonClassName: string;
   placeholder?: string;
-  /** ex. până se alege departamentul (orele libere depind de el) */
+  /** ex. până se alege medicul (orele libere depind de el) */
   disabled?: boolean;
   disabledText?: string;
 }) {

@@ -4,11 +4,11 @@ import { Booking } from "./models";
 /** Cheia intervalului: „YYYY-MM-DD HH:MM" pe ora României. */
 export const slotKey = (data: string, ora: string) => `${data} ${ora}`;
 
-/** Orele ocupate (de programări neanulate) într-o zi „YYYY-MM-DD", în departamentul dat. */
-export async function takenSlots(data: string, bookingTypeId: number): Promise<string[]> {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(data) || !Number.isInteger(bookingTypeId)) return [];
+/** Orele ocupate (de programări neanulate) ale unui medic într-o zi „YYYY-MM-DD". */
+export async function takenSlots(data: string, doctor: string): Promise<string[]> {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(data) || !doctor) return [];
   await connectDb();
-  const docs = await Booking.find({ bookingTypeId, slot: { $gte: `${data} `, $lt: `${data}~` }, cancelled: false })
+  const docs = await Booking.find({ doctor, slot: { $gte: `${data} `, $lt: `${data}~` }, cancelled: false })
     .select("slot")
     .lean();
   return docs.map((d) => d.slot.slice(11));

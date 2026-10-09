@@ -47,6 +47,7 @@ type BookingData = {
   date: string; // d-m-Y
   hour: string; // H:i
   type: string;
+  medic: string;
 };
 
 /** Emails/html/admin_booking.ctp — subiect „Programare nouă - JoyOptic" */
@@ -72,6 +73,7 @@ export function adminBookingHtml(b: BookingData) {
             <p><strong>Data:</strong> ${h(b.date)}</p>
             <p><strong>Ora:</strong> ${h(b.hour)}</p>
             <p><strong>Tip programare:</strong> ${h(b.type)}</p>
+            <p><strong>Medic:</strong> ${h(b.medic || "-")}</p>
         </div>
 
         <div class="footer">
@@ -134,6 +136,7 @@ export function userBookingHtml(b: BookingData & { confirmUrl: string }) {
             <p><strong>Data:</strong> ${h(b.date)}</p>
             <p><strong>Ora:</strong> ${h(b.hour)}</p>
             <p><strong>Tip programare:</strong> ${h(b.type)}</p>
+            <p><strong>Medic:</strong> ${h(b.medic || "-")}</p>
             <p><strong>Telefon:</strong> ${h(b.phone)}</p>
             <p><strong>Email:</strong> ${h(b.email)}</p>
         </div>

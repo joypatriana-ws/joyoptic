@@ -7,7 +7,7 @@ import { useMemo, useState, useTransition } from "react";
 import { Ban, Check, ChevronLeft, ChevronRight, Clock, Mail, Phone, Plus, RotateCcw, Trash2, X } from "lucide-react";
 import ConfirmModal from "@/components/admin/ConfirmModal";
 import { Select, TimeSelect } from "@/components/custom-select";
-import { bookingTypes, doctors, hoursFor } from "@/lib/site";
+import { doctors, hoursFor } from "@/lib/site";
 
 export type Programare = {
   id: string;
@@ -17,7 +17,6 @@ export type Programare = {
   data: string; // YYYY-MM-DD, ora României
   ora: string; // HH:MM
   tip: string;
-  tipId: number;
   medic: string | null;
   mesaj: string | null;
   confirmata: boolean;
@@ -320,7 +319,7 @@ export default function ProgramariClient({ programari: initiale }: { programari:
       {adauga && ziAleasa && (
         <ProgramareNouaModal
           data={ziAleasa}
-          luate={aleseZi.filter((p) => !p.anulata).map((p) => ({ ora: p.ora, tipId: p.tipId }))}
+          luate={aleseZi.filter((p) => !p.anulata).map((p) => ({ ora: p.ora, medic: p.medic ?? "" }))}
           onInchide={() => setAdauga(false)}
           onSalvat={() => {
             setAdauga(false);
@@ -361,8 +360,8 @@ function ProgramareNouaModal({
   onSalvat,
 }: {
   data: string;
-  /** programările active ale zilei; fiecare departament are programările lui */
-  luate: { ora: string; tipId: number }[];
+  /** programările active ale zilei; fiecare medic are programările lui */
+  luate: { ora: string; medic: string }[];
   onInchide: () => void;
   onSalvat: () => void;
 }) {
@@ -370,12 +369,11 @@ function ProgramareNouaModal({
   const [telefon, setTelefon] = useState("");
   const [email, setEmail] = useState("");
   const [ora, setOra] = useState("");
-  const [tip, setTip] = useState("1");
   const [medic, setMedic] = useState("");
   const [mesaj, setMesaj] = useState("");
   const [trimite, setTrimite] = useState(false);
   const [eroare, setEroare] = useState<string | null>(null);
-  const oreLuate = luate.filter((l) => String(l.tipId) === tip).map((l) => l.ora);
+  const oreLuate = luate.filter((l) => l.medic === medic).map((l) => l.ora);
 
   const dataLunga = new Date(`${data}T00:00:00`).toLocaleDateString("ro-RO", {
     weekday: "long",
@@ -400,7 +398,7 @@ function ProgramareNouaModal({
       const r = await fetch("/api/admin/programari", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nume, telefon, email: email || null, data, ora, tip, medic: medic || null, mesaj: mesaj || null }),
+        body: JSON.stringify({ nume, telefon, email: email || null, data, ora, medic, mesaj: mesaj || null }),
       });
       const d = (await r.json()) as { message?: string };
       if (!r.ok) {
@@ -434,6 +432,21 @@ function ProgramareNouaModal({
         </div>
 
         <div className="space-y-3 p-5">
+          <label className="block">
+            <span className={eticheta}>Medic *</span>
+            <Select
+              name="medic"
+              value={medic}
+              onChange={(v) => {
+                setMedic(v);
+                if (luate.some((l) => l.medic === v && l.ora === ora)) setOra("");
+              }}
+              placeholder="Alege medicul"
+              options={[...doctors.map((d) => ({ value: d.name, label: `${d.name} - ${d.specialization}` }))]}
+              buttonClassName={camp}
+            />
+          </label>
+
           <div>
             <span className={eticheta}>Ora *</span>
             <TimeSelect
@@ -441,7 +454,8 @@ function ProgramareNouaModal({
               slots={oreleZilei(data).filter((o) => !oreLuate.includes(o))}
               value={ora}
               onChange={setOra}
-              placeholder="Alege ora"
+              placeholder={medic ? "Alege ora" : "Alege întâi medicul"}
+              disabled={!medic}
               emptyText="Nu mai e niciun interval liber în ziua asta."
               buttonClassName={camp}
             />
@@ -455,33 +469,6 @@ function ProgramareNouaModal({
                 : "Ora a trecut deja azi — se salvează ca vizită care a avut loc, nu ca programare viitoare."}
             </div>
           )}
-
-          <label className="block">
-            <span className={eticheta}>Tipul consultației *</span>
-            <Select
-              name="tip"
-              value={tip}
-              onChange={(v) => {
-                setTip(v);
-                if (luate.some((l) => String(l.tipId) === v && l.ora === ora)) setOra("");
-              }}
-              placeholder="Alege tipul"
-              options={bookingTypes.map((t) => ({ value: String(t.id), label: t.title }))}
-              buttonClassName={camp}
-            />
-          </label>
-
-          <label className="block">
-            <span className={eticheta}>Medic</span>
-            <Select
-              name="medic"
-              value={medic}
-              onChange={setMedic}
-              placeholder="—"
-              options={[{ value: "", label: "—" }, ...doctors.map((d) => ({ value: d.name, label: `${d.name} - ${d.specialization}` }))]}
-              buttonClassName={camp}
-            />
-          </label>
 
           <label className="block">
             <span className={eticheta}>Nume *</span>
@@ -509,7 +496,7 @@ function ProgramareNouaModal({
           <div className="flex gap-2">
             <button
               type="submit"
-              disabled={trimite || !ora || !nume.trim() || !telefon.trim()}
+              disabled={trimite || !ora || !medic || !nume.trim() || !telefon.trim()}
               className="inline-flex items-center gap-1.5 rounded-lg bg-accent px-3.5 py-2 text-xs font-medium text-white transition-colors hover:bg-[#218838] disabled:opacity-40"
             >
               <Check size={14} /> {trimite ? "Se salvează…" : "Salvează programarea"}

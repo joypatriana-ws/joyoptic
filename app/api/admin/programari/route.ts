@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAdminRequest } from "@/lib/admin/require-admin-request";
 import { connectDb } from "@/lib/db";
 import { Booking } from "@/lib/models";
-import { bookingTypes, doctors, hoursFor } from "@/lib/site";
+import { CONSULTATIE, doctors, hoursFor } from "@/lib/site";
 import { bucharestToUtc } from "@/lib/time";
 import { isDuplicateSlot, slotKey, takenSlots } from "@/lib/booking-slots";
 
@@ -29,12 +29,11 @@ export async function POST(request: NextRequest) {
     const data = curata(body.data, 10);
     const ora = curata(body.ora, 5);
     const mesaj = curata(body.mesaj, 1000);
-    const tip = bookingTypes.find((t) => t.id === Number(body.tip));
     const medic = curata(body.medic, 100);
 
-    if (!nume || !telefon || !data || !ora || !tip) {
+    if (!nume || !telefon || !data || !ora || !medic) {
       return NextResponse.json(
-        { error: "lipsesc_campuri", message: "Nume, telefon, tip, dată și oră sunt obligatorii." },
+        { error: "lipsesc_campuri", message: "Nume, telefon, medic, dată și oră sunt obligatorii." },
         { status: 400 },
       );
     }
@@ -47,20 +46,19 @@ export async function POST(request: NextRequest) {
         { status: 400 },
       );
     }
-    if (medic && !doctors.some((d) => d.name === medic)) {
+    if (!doctors.some((d) => d.name === medic)) {
       return NextResponse.json({ error: "medic_invalid", message: "Medicul ales nu există." }, { status: 400 });
     }
 
-    const ocupat = { error: "ora_ocupata", message: "Intervalul e deja ocupat în acest departament. Alege altă oră." };
-    if ((await takenSlots(data, tip.id)).includes(ora)) return NextResponse.json(ocupat, { status: 409 });
+    const ocupat = { error: "ora_ocupata", message: "Intervalul e deja ocupat la acest medic. Alege altă oră." };
+    if ((await takenSlots(data, medic)).includes(ora)) return NextResponse.json(ocupat, { status: 409 });
 
     await connectDb();
     const start = bucharestToUtc(data, ora);
     let creata;
     try {
       creata = await Booking.create({
-      bookingTypeId: tip.id,
-      bookingTypeTitle: tip.title,
+      bookingTypeTitle: CONSULTATIE,
       start,
       end: new Date(start.getTime() + 15 * 60_000),
       slot: slotKey(data, ora),
@@ -69,7 +67,7 @@ export async function POST(request: NextRequest) {
       name: nume,
       phone: telefon,
       email: email ?? "",
-      doctor: medic ?? "",
+      doctor: medic,
       message: mesaj ?? "",
       });
     } catch (e) {

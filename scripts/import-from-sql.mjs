@@ -295,12 +295,14 @@ await upsertAll(
   })),
 );
 await upsertAll("messages", data.messages);
-// fiecare departament are programările lui: un interval (15 min) nu poate avea două programări active în același departament
+// programările se fac pe medic: un medic nu poate avea două programări active în același interval (15 min)
 const bookingsColl = db.collection("bookings");
-if ((await bookingsColl.indexes()).some((i) => i.name === "slot_1")) await bookingsColl.dropIndex("slot_1");
+for (const vechi of ["slot_1", "departament_interval"]) {
+  if ((await bookingsColl.indexes()).some((i) => i.name === vechi)) await bookingsColl.dropIndex(vechi);
+}
 await bookingsColl.createIndex(
-  { bookingTypeId: 1, slot: 1 },
-  { unique: true, partialFilterExpression: { cancelled: false }, name: "departament_interval" },
+  { doctor: 1, slot: 1 },
+  { unique: true, partialFilterExpression: { cancelled: false }, name: "medic_interval" },
 );
 
 await mongoose.disconnect();

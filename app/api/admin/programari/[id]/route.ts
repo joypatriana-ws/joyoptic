@@ -25,7 +25,7 @@ export async function PATCH(request: NextRequest, { params }: Ctx) {
     // o programare anulată nu poate reveni dacă între timp intervalul a fost luat
     if ((e as { code?: number })?.code === 11000) {
       return NextResponse.json(
-        { error: "ora_ocupata", message: "Intervalul e deja luat de altă programare din același departament. Fă o programare nouă pe alt interval." },
+        { error: "ora_ocupata", message: "Intervalul e deja luat de altă programare la același medic. Fă o programare nouă pe alt interval." },
         { status: 409 },
       );
     }

@@ -3,10 +3,11 @@ import mongoose, { Schema, type InferSchemaType, type Model } from "mongoose";
 const bookingSchema = new Schema(
   {
     legacyId: { type: Number, index: true, sparse: true },
-    bookingTypeId: { type: Number, required: true },
-    bookingTypeTitle: { type: String, required: true },
+    // tipul din Croogo, doar la programările vechi; cele noi sunt toate „Consult oftalmologic" (id 0)
+    bookingTypeId: { type: Number, default: 0 },
+    bookingTypeTitle: { type: String, default: "Consult oftalmologic" },
     start: { type: Date, required: true, index: true },
-    // „YYYY-MM-DD HH:MM" pe ora României; fiecare departament (bookingTypeId) are programările lui
+    // „YYYY-MM-DD HH:MM" pe ora României; fiecare medic are programările lui
     slot: { type: String, required: true },
     end: { type: Date, required: true },
     confirmed: { type: Boolean, default: false },
@@ -24,11 +25,8 @@ const bookingSchema = new Schema(
   { timestamps: true },
 );
 
-// un interval nu poate avea două programări active în același departament (confirmat de cabinet)
-bookingSchema.index(
-  { bookingTypeId: 1, slot: 1 },
-  { unique: true, partialFilterExpression: { cancelled: false }, name: "departament_interval" },
-);
+// un medic nu poate avea două programări active în același interval de 15 minute (confirmat de cabinet)
+bookingSchema.index({ doctor: 1, slot: 1 }, { unique: true, partialFilterExpression: { cancelled: false }, name: "medic_interval" });
 
 const messageSchema = new Schema(
   {

@@ -2,7 +2,7 @@
 
 import { useCallback, useState } from "react";
 import { rowClasses, sectionClasses } from "@/lib/theme-classes.mjs";
-import { bookingTypes, doctors, hoursFor, phonePattern } from "@/lib/site";
+import { doctors, hoursFor, phonePattern } from "@/lib/site";
 import { sectionId } from "@/lib/slugs.mjs";
 import { Select } from "@/components/custom-select";
 import { DateTimePicker } from "@/components/date-time-picker";
@@ -29,7 +29,6 @@ export function Appointment() {
   const [status, setStatus] = useState<Status>({ kind: "idle" });
   const [validatedForm, setValidatedForm] = useState(false);
   const [cand, setCand] = useState({ date: "", hour: "" });
-  const [bookingType, setBookingType] = useState("");
   const [doctor, setDoctor] = useState("");
 
   /** Intervalele de program ale zilei; azi, doar cele care n-au trecut (ora României). */
@@ -39,13 +38,13 @@ export function Appointment() {
   }, []);
 
   /** Intervalele deja ocupate (doar orele, fără date despre pacienți). */
-  // fiecare departament are programările lui, deci orele ocupate se cer pentru departamentul ales
+  // fiecare medic are programările lui, deci orele ocupate se cer pentru medicul ales
   const takenFor = useCallback(
     (date: string) =>
-      fetch(`/api/programare/ocupate?data=${date}&tip=${bookingType}`)
+      fetch(`/api/programare/ocupate?data=${date}&medic=${encodeURIComponent(doctor)}`)
         .then((r) => r.json())
         .then((d: { ocupate?: string[] }) => d.ocupate ?? []),
-    [bookingType],
+    [doctor],
   );
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -78,7 +77,6 @@ export function Appointment() {
       setStatus({ kind: "sent" });
       form.reset();
       setCand({ date: "", hour: "" });
-      setBookingType("");
       setDoctor("");
       setValidatedForm(false);
       setTimeout(() => setStatus((s) => (s.kind === "sent" ? { kind: "idle" } : s)), 5000);
@@ -128,46 +126,35 @@ export function Appointment() {
 
           <div className={rowClasses()}>
 
-            <div className="mt-4 pb-2 md:w-1/3">
+            <div className="mt-4 pb-2 md:w-1/2">
               <Select
-                name="bookingType"
+                name="doctor"
                 required
-                value={bookingType}
+                value={doctor}
                 onChange={(v) => {
-                  setBookingType(v);
-                  // ora aleasă era liberă în alt departament: se alege din nou
-                  if (v !== bookingType) setCand((c) => ({ ...c, hour: "" }));
+                  setDoctor(v);
+                  // ora aleasă era liberă la alt medic: se alege din nou
+                  if (v !== doctor) setCand((c) => ({ ...c, hour: "" }));
                 }}
-                placeholder="Selectează departamentul"
-                options={bookingTypes.map((t) => ({ value: String(t.id), label: t.title }))}
+                placeholder="Selectează medicul"
+                options={doctors.map((d) => ({ value: d.name, label: `${d.name} - ${d.specialization}` }))}
                 buttonClassName={select}
               />
             </div>
-            <div className="mt-4 pb-2 md:w-1/3">
-              {/* data și ora într-un singur câmp (în locul bootstrap-datepicker + select-ul de oră);
-                  orele libere depind de departament, deci se alege după el */}
+            <div className="mt-4 pb-2 md:w-1/2">
+              {/* data și ora într-un singur câmp; orele libere depind de medic, deci se aleg după el */}
               <DateTimePicker
                 required
                 value={cand}
                 onChange={setCand}
                 slotsFor={slotsFor}
                 takenFor={takenFor}
-                disabled={!bookingType}
-                disabledText="Alege întâi departamentul"
+                disabled={!doctor}
+                disabledText="Alege întâi medicul"
                 buttonClassName={select}
               />
             </div>
 
-            <div className="mt-4 pb-2 md:w-1/3">
-              <Select
-                name="doctor"
-                value={doctor}
-                onChange={setDoctor}
-                placeholder="Selectează medicul"
-                options={[{ value: "", label: "Selectează medicul" }, ...doctors.map((d) => ({ value: d.name, label: `${d.name} - ${d.specialization}` }))]}
-                buttonClassName={select}
-              />
-            </div>
 
             <div className="mt-4 pb-2">
               <textarea name="message" placeholder="Mesaj (Opțional)" rows={5} className={`${appointmentField} ${validated}`} />

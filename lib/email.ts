@@ -61,7 +61,7 @@ function ro(d: Date) {
 
 export async function sendBookingEmails(b: BookingDoc) {
   const { date, hour } = ro(b.start);
-  const data = { name: b.name, phone: b.phone, email: b.email, date, hour, type: b.bookingTypeTitle };
+  const data = { name: b.name, phone: b.phone, email: b.email, date, hour, type: b.bookingTypeTitle, medic: b.doctor };
   const confirmUrl = `${process.env.SITE_URL ?? site.url}/programare/confirma/${b._id}/${confirmToken(b)}`;
 
   // ca pe site-ul vechi: întâi emailul către cabinet, apoi confirmarea către pacient

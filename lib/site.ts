@@ -51,19 +51,21 @@ export const servicesMenu = [
   { title: "Prescriere ochelari", href: pagePath("prescriere-ochelari") },
 ];
 
-/** Tabela booking_types („Selectează departamentul"). */
-export const bookingTypes = [
-  { id: 1, title: "Consultații oftalmologice generale" },
-  { id: 2, title: "Prescripții și adaptări optice" },
-  { id: 3, title: "Consultații specializate" },
-  { id: 4, title: "Monitorizare și controale periodice" },
-];
+/**
+ * Un singur tip de consultație (confirmat de cabinet). Tipurile din Croogo (booking_types, „departamentele")
+ * rămân doar în istoricul programărilor vechi.
+ */
+export const CONSULTATIE = "Consult oftalmologic";
 
-/** Medicii din formularul de programare (Elements/home_appointment.ctp). */
+/**
+ * Medicii (Elements/home_appointment.ctp + Dr. Labib, adăugat de cabinet). Programările se fac pe medic:
+ * fiecare are calendarul lui, cu intervale de 15 minute. `name` e și valoarea salvată în programare.
+ */
 export const doctors = [
   { name: "Dr. ANGHELACHE Daniela", specialization: "Oftalmologie" },
   { name: "Dr. BARBUCEANU Sorin", specialization: "Optometrie" },
   { name: "Dr. Popteanu Ioana Claudia", specialization: "Oftalmopediatrie" },
+  { name: "Dr. Mahdi Labib", specialization: "Medic primar" },
 ];
 
 /** Subiectele din formularul de contact (Nodes/promoted.ctp). */
