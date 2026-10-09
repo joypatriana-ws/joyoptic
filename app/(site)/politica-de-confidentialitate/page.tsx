@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 };
 
 // Conținut verificat din cod: ce colectează formularele și unde ajung datele.
-// De confirmat de cabinet: termenele de păstrare (vezi docs).
+// Păstrarea datelor: cât e necesar, apoi cât cere legea (confirmat de cabinet, fără termen propriu).
 export default function PoliticaConfidentialitate() {
   return (
     <LegalPage
