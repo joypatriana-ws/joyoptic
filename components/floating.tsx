@@ -81,7 +81,8 @@ export function Floating({
         minWidth: pos?.minWidth,
         visibility: pos ? "visible" : "hidden",
       }}
-      className={`z-[1000] ${className}`}
+      // peste butonul „sus" (#scroll-top, z 99999) și peste header
+      className={`z-[100000] ${className}`}
     >
       {children}
     </div>,

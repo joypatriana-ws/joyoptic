@@ -145,7 +145,7 @@ export function DateTimePicker({
           role="dialog"
           label="Alege data și ora"
           onKeyDown={(e) => e.key === "Escape" && setOpen(false)}
-          className="w-[min(36rem,calc(100vw-24px))] rounded-lg border border-black/10 bg-white shadow-[0_12px_32px_rgba(0,0,0,0.14)]"
+          className="w-[min(36rem,calc(100vw-24px))] rounded-lg border border-black/10 bg-white shadow-[0_12px_32px_rgba(0,0,0,0.14)] [&_button]:focus-visible:outline-2 [&_button]:focus-visible:outline-offset-2 [&_button]:focus-visible:outline-accent"
         >
           <div className="grid sm:grid-cols-[1fr_auto]">
             {/* 1. ziua */}
