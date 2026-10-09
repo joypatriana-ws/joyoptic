@@ -11,6 +11,11 @@ export const site = {
   phoneHref: "tel:+40787698398",
   address: "Str. Republicii nr. 19",
   city: "Câmpina",
+  // din certificatul de înregistrare ONRC
+  company: "JOY PATRIANA OPTIC S.R.L.",
+  cui: "46933024",
+  regCom: "J29/2858/2022",
+  registeredOffice: "Mun. Câmpina, Str. Republicii nr. 19, bl. 15C, sc. A, parter, jud. Prahova",
   facebook: "https://www.facebook.com/joyoptic08/",
   mapsEmbed:
     "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2830.212136933364!2d25.733491!3d45.1256073!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x40b3007850198c7f%3A0x7608a986b0854d92!2sJOY%20OPTIC!5e0!3m2!1sen!2sro!4v1708600000000",

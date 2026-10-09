@@ -109,6 +109,9 @@ export function Footer() {
         <p className="mb-0">
           © {new Date().getFullYear()} <strong className="px-1">{site.name}</strong> | Toate drepturile rezervate.
         </p>
+        <p className="mt-2 mb-0 text-[13px] text-default/60">
+          {site.company} | CUI {site.cui} | {site.regCom}
+        </p>
       </div>
     </footer>
   );

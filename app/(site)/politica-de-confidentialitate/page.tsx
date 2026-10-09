@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 };
 
 // Conținut verificat din cod: ce colectează formularele și unde ajung datele.
-// De confirmat de cabinet înainte de lansare: datele firmei (denumire, CUI) și termenele de păstrare (vezi docs).
+// De confirmat de cabinet: termenele de păstrare (vezi docs).
 export default function PoliticaConfidentialitate() {
   return (
     <LegalPage
@@ -19,7 +19,8 @@ export default function PoliticaConfidentialitate() {
     >
       <h2>Cine suntem</h2>
       <p>
-        {site.name}, cabinet de optică medicală și oftalmologie, {site.address}, {site.city}. Ne poți scrie la{" "}
+        Datele sunt prelucrate de <strong>{site.company}</strong> ({site.name}), cabinet de optică medicală și oftalmologie, cu sediul
+        în {site.registeredOffice}, CUI {site.cui}, nr. Registrul Comerțului {site.regCom}. Ne poți scrie la{" "}
         <a href={`mailto:${site.email}`}>{site.email}</a> sau ne poți suna la <a href={site.phoneHref}>{site.phone}</a> pentru orice
         întrebare despre datele tale.
       </p>
@@ -52,6 +53,9 @@ export default function PoliticaConfidentialitate() {
         </li>
         <li>
           <strong>Resend</strong> — trimiterea emailurilor de confirmare și a notificărilor către cabinet;
+        </li>
+        <li>
+          <strong>ImprovMX</strong> și <strong>Google (Gmail)</strong> — primirea emailurilor trimise la {site.email};
         </li>
         <li>
           <strong>Google</strong> — harta din pagina de contact (vezi <Link href="/cookies">Politica de cookie-uri</Link>).
