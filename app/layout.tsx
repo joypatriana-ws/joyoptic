@@ -11,7 +11,8 @@ const raleway = Raleway({ variable: "--font-raleway", subsets: ["latin", "latin-
 // Meta din setările Croogo (Meta.description, Meta.keywords, Meta.robots)
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
-  title: "Bine ati venit",
+  // titlul din tab și din Google: „Servicii | Joy Optic"; prima pagină păstrează titlul vechi
+  title: { default: "Bine ați venit | Joy Optic", template: `%s | ${site.name}` },
   description: "Optică Medicală și Oftalmologie",
   keywords: "joy optic",
   robots: "index, follow",
