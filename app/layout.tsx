@@ -1,12 +1,5 @@
 import type { Metadata } from "next";
 import { Poppins, Raleway, Roboto } from "next/font/google";
-import { Flash } from "@/components/theme/flash";
-import { Footer } from "@/components/theme/footer";
-import { Header } from "@/components/theme/header";
-import { Preloader } from "@/components/theme/preloader";
-import { ScrollTop } from "@/components/theme/scroll-top";
-import { ThemeScripts } from "@/components/theme/theme-scripts";
-import { isBlockActive } from "@/lib/content";
 import { site } from "@/lib/site";
 import "./globals.css";
 
@@ -24,23 +17,10 @@ export const metadata: Metadata = {
   robots: "index, follow",
 };
 
-export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  // linkul „Oferte" din meniu apare doar când secțiunea de oferte e activă
-  const showOffers = await isBlockActive("special-offers");
-
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="ro" className={`${roboto.variable} ${poppins.variable} ${raleway.variable}`}>
-      <body className="index-page">
-        <Header showOffers={showOffers} />
-        <main className="main">
-          <Flash />
-          {children}
-        </main>
-        <Footer />
-        <ScrollTop />
-        <Preloader />
-        <ThemeScripts />
-      </body>
+      <body>{children}</body>
     </html>
   );
 }

@@ -10,6 +10,7 @@ import path from "node:path";
 import mongoose from "mongoose";
 import { convertThemeHtml } from "./convert-theme-html.mjs";
 import { pagePath, pageSlugs } from "../lib/slugs.mjs";
+import { defaultOffers } from "../lib/offers.mjs";
 
 const SQL_PATH =
   process.env.SQL_DUMP ??
@@ -210,7 +211,16 @@ function transform(t) {
     .filter((b) => b.alias === "special-offers")
     .map((b) => ({ alias: b.alias, title: b.title, active: b.status === 1 }));
 
-  return { pages, posts, menus, contact, bookingTypes, bookings, messages, blocks };
+  // Administratorii din Croogo. Parolele nu se pot muta (sha1 cu sarea vechii instalări):
+  // fiecare cont își setează parola dintr-un link (vezi scripts/admin-user.mjs).
+  const users = t.users.map((u) => ({
+    legacyId: u.id,
+    email: u.email.toLowerCase(),
+    name: u.name === "admin" ? "Admin" : u.name,
+    active: u.status === 1,
+  }));
+
+  return { pages, posts, menus, contact, bookingTypes, bookings, messages, blocks, users };
 }
 
 // ---------- rulare ----------
@@ -248,7 +258,26 @@ const upsertAll = async (coll, docs, key = "legacyId") => {
 };
 
 await upsertAll("pages", data.pages);
-await upsertAll("blocks", data.blocks, "alias");
+// textele blocului se pun doar la prima creare, ca să nu suprascriem ce s-a editat în admin
+for (const b of data.blocks) {
+  await db.collection("blocks").updateOne({ alias: b.alias }, { $set: b }, { upsert: true });
+  await db
+    .collection("blocks")
+    .updateOne(
+      { alias: b.alias, items: { $exists: false } },
+      { $set: { items: b.alias === "special-offers" ? defaultOffers : [] } },
+    );
+}
+console.log(`blocks: ${data.blocks.length}`);
+// conturile: parola și starea de logare nu se ating la reimport
+for (const u of data.users) {
+  await db.collection("users").updateOne(
+    { email: u.email },
+    { $set: u, $setOnInsert: { passwordHash: null, createdAt: new Date() } },
+    { upsert: true },
+  );
+}
+console.log(`users: ${data.users.length}`);
 await upsertAll("posts", data.posts);
 await upsertAll("menus", data.menus, "alias");
 await db

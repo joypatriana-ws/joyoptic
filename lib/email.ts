@@ -7,9 +7,11 @@ import type { BookingDoc, MessageDoc } from "./models";
 const FROM = process.env.EMAIL_FROM ?? `${site.name} <programari@joyoptic.ro>`;
 const ADMIN = process.env.EMAIL_ADMIN ?? site.email;
 
-async function send(opts: { to: string; subject: string; html: string; replyTo?: string }) {
+export async function send(opts: { to: string; subject: string; html: string; replyTo?: string }) {
   if (!process.env.RESEND_API_KEY) {
     console.info(`[email neconfigurat] către ${opts.to}: ${opts.subject}`);
+    // în dezvoltare, linkurile din email (ex. setarea parolei) apar în consolă
+    if (process.env.NODE_ENV !== "production") console.info(opts.html.match(/href="([^"]+)"/g)?.join("\n") ?? "");
     return;
   }
   const resend = new Resend(process.env.RESEND_API_KEY);
@@ -83,3 +85,4 @@ export async function sendMessageEmail(m: MessageDoc) {
     }),
   });
 }
+

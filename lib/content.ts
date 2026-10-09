@@ -1,5 +1,6 @@
 import { connectDb } from "./db";
 import { Block, Page, Post } from "./models";
+import { defaultOffers } from "./offers.mjs";
 
 export type ContentItem = {
   legacyId?: number;
@@ -60,6 +61,14 @@ export async function isBlockActive(alias: string): Promise<boolean> {
   await connectDb();
   const block = await Block.findOne({ alias }).lean<{ active: boolean }>();
   return block?.active ?? false;
+}
+
+/** Cardurile ofertelor (blocul „special-offers"), editate din admin. */
+export async function getOffers(): Promise<{ media: string; title: string; html: string }[]> {
+  if (await preview()) return defaultOffers;
+  await connectDb();
+  const block = await Block.findOne({ alias: "special-offers" }).lean<{ items?: { media: string; title: string; html: string }[] }>();
+  return block?.items?.length ? block.items : defaultOffers;
 }
 
 /** Textul simplu dintr-un fragment HTML, pentru descrieri meta. */

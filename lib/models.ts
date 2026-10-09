@@ -8,9 +8,14 @@ const bookingSchema = new Schema(
     start: { type: Date, required: true, index: true },
     end: { type: Date, required: true },
     confirmed: { type: Boolean, default: false },
+    // anulată din admin (rămâne în evidență, dar nu mai ocupă ora)
+    cancelled: { type: Boolean, default: false },
+    // de unde a venit: formularul de pe site sau adăugată din admin (telefon / la cabinet)
+    source: { type: String, enum: ["site", "admin"], default: "site" },
     name: { type: String, required: true },
     phone: { type: String, required: true },
-    email: { type: String, required: true },
+    // la programările luate la telefon emailul poate lipsi
+    email: { type: String, default: "" },
     doctor: { type: String, default: "" },
     message: { type: String, default: "" },
   },
@@ -62,6 +67,21 @@ const blockSchema = new Schema(
     alias: { type: String, required: true, unique: true },
     title: { type: String, default: "" },
     active: { type: Boolean, default: false },
+    // conținutul blocului (pentru „special-offers": cardurile ofertelor)
+    items: [{ _id: false, media: String, title: String, html: String }],
+  },
+  { timestamps: true },
+);
+
+const userSchema = new Schema(
+  {
+    legacyId: Number,
+    email: { type: String, required: true, unique: true, lowercase: true, trim: true },
+    name: { type: String, required: true },
+    // null = cont fără parolă încă (importat din Croogo); se setează din admin sau cu scripts/admin-parola.mjs
+    passwordHash: { type: String, default: null },
+    active: { type: Boolean, default: true },
+    lastLoginAt: { type: Date, default: null },
   },
   { timestamps: true },
 );
@@ -87,3 +107,6 @@ export const Post =
 export const Block =
   (mongoose.models.Block as Model<InferSchemaType<typeof blockSchema>>) ??
   mongoose.model("Block", blockSchema);
+export const User =
+  (mongoose.models.User as Model<InferSchemaType<typeof userSchema>>) ??
+  mongoose.model("User", userSchema);

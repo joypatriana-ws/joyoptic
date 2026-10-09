@@ -7,39 +7,13 @@ import "swiper/css/pagination";
 import { sectionClasses, sectionTitle } from "@/lib/theme-classes.mjs";
 import { sectionId } from "@/lib/slugs.mjs";
 
-// Elements/special_offers.ctp
-const offers = [
-  {
-    media: "/img/offers/offer1.svg",
-    title: "Lentile gratuite",
-    text: (
-      <>
-        La achiziția ramelor din brandurile <strong>Carolina Herrera, Guess, Furla, Givenchy, Police, Silhouette</strong>,
-        primești lentile gratuite până la 120 lei (1.5HMC).
-      </>
-    ),
-  },
-  {
-    media: "/img/offers/offer2.svg",
-    title: "Reducere 20% la rame",
-    text: (
-      <>
-        Beneficiezi de <strong>20% reducere</strong> la orice pereche de rame de ochelari din colecția 2024.
-      </>
-    ),
-  },
-  {
-    media: "/img/offers/offer3.svg",
-    title: "Consultație oftalmologică gratuită",
-    text: <>Consultație gratuită la achiziția unei perechi de ochelari cu lentile antireflex.</>,
-  },
-];
+export type Offer = { media: string; title: string; html: string };
 
 /**
  * <section id="special-offers" class="special-offers section light-background"> (blocul Croogo „special-offers").
  * Se afișează doar când blocul e activ (vezi isBlockActive).
  */
-export function SpecialOffers() {
+export function SpecialOffers({ offers }: { offers: Offer[] }) {
   return (
     <section id={sectionId("special-offers")} className={`${sectionClasses({ light: true })} py-14! lg:py-20!`}>
       <div
@@ -71,7 +45,7 @@ export function SpecialOffers() {
                 />
                 <div className="flex flex-auto flex-col justify-center px-[22px] pt-3 pb-[22px]">
                   <h5 className="mb-2 text-[18px] font-bold text-heading">{o.title}</h5>
-                  <p className="mb-0 text-[1.25rem] font-light text-default/70">{o.text}</p>
+                  <p className="mb-0 text-[1.25rem] font-light text-default/70" dangerouslySetInnerHTML={{ __html: o.html }} />
                 </div>
               </div>
             </SwiperSlide>

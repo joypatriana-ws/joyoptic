@@ -3,13 +3,14 @@ import { Contact } from "@/components/theme/contact";
 import { Gallery } from "@/components/theme/gallery";
 import { NodeBody } from "@/components/theme/node-body";
 import { SpecialOffers } from "@/components/theme/special-offers";
-import { isBlockActive, listPromotedPages } from "@/lib/content";
+import { getOffers, isBlockActive, listPromotedPages } from "@/lib/content";
 
 export const revalidate = 300;
 
 /** Nodes/promoted.ctp: hero, paginile promovate în ordine, blocurile din region1 (oferte), apoi contactul. */
 export default async function Home() {
   const [pages, offersActive] = await Promise.all([listPromotedPages(), isBlockActive("special-offers")]);
+  const offers = offersActive ? await getOffers() : [];
   const hero = pages.find((p) => p.legacySlug === "hero");
 
   return (
@@ -26,7 +27,7 @@ export default async function Home() {
             <NodeBody key={p.slug} html={p.bodyHtml} />
           ),
         )}
-      {offersActive && <SpecialOffers />}
+      {offersActive && <SpecialOffers offers={offers} />}
       <Contact />
     </>
   );
