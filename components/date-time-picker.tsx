@@ -218,7 +218,7 @@ export function DateTimePicker({
             </div>
 
             {/* 2. ora, 3. minutul — „segmented pills" */}
-            <div className="border-t border-black/5 p-4 sm:w-64 sm:border-t-0">
+            <div className="flex flex-col border-t border-black/5 p-4 sm:w-64 sm:border-t-0">
               <Pas nr={2} titlu="Ora" gata={Boolean(ora)} activ={Boolean(zi) && !ora} />
               {!zi ? (
                 <Indiciu>Alege întâi ziua din calendar.</Indiciu>
@@ -235,7 +235,8 @@ export function DateTimePicker({
                       aria-pressed={h === ora}
                       onClick={() => {
                         setOra(h);
-                        setMinut("");
+                        // :00 preselectat (sau primul minut liber al orei)
+                        setMinut(MINUTE.find((m) => minuteLibere(h).has(m)) ?? "");
                       }}
                       className={`h-10 rounded-md border font-heading text-[15px] transition-colors ${
                         h === ora ? "border-accent bg-accent font-semibold text-white" : "border-black/10 text-heading hover:border-accent hover:text-accent"
@@ -249,7 +250,7 @@ export function DateTimePicker({
 
               {ora && (
                 <div className="mt-4 border-t border-black/5 pt-3">
-                  <Pas nr={3} titlu={`Minutul (ora ${ora})`} gata={Boolean(alegere)} activ={!alegere} />
+                  <Pas nr={3} titlu={`Minutele (ora ${ora})`} gata={Boolean(alegere)} activ={!alegere} />
                   <div className="grid grid-cols-4 gap-1.5">
                     {MINUTE.map((m) => {
                       const liber = minuteLibere(ora).has(m);
@@ -269,7 +270,7 @@ export function DateTimePicker({
                                 : "cursor-not-allowed border-black/5 bg-black/[.02] text-default/25"
                           }`}
                         >
-                          :{m}
+                          {m}
                         </button>
                       );
                     })}
@@ -279,30 +280,41 @@ export function DateTimePicker({
                   )}
                 </div>
               )}
+
+              {/* rezultatul, mare, în spațiul rămas; gri (00:00) până se alege ora */}
+              <div className="flex flex-1 flex-col items-center justify-center pt-4 pb-1" aria-live="polite">
+                <span
+                  className={`font-heading text-[44px] leading-none font-semibold tabular-nums transition-colors ${
+                    alegere ? "text-heading" : "text-default/20"
+                  }`}
+                >
+                  {alegere || "00:00"}
+                </span>
+                <span className={`mt-2 min-h-5 text-[13px] first-letter:uppercase ${zi ? "text-default/70" : "text-default/30"}`}>
+                  {zi ? ziLunga(zi) : "ziua și ora"}
+                </span>
+              </div>
             </div>
           </div>
 
           {/* ce urmează + confirmare */}
           <div className="flex flex-wrap items-center justify-between gap-3 border-t border-black/5 bg-light/60 px-4 py-3">
-            <span className="text-[14px] text-default">
-              {!zi ? (
-                <>Alege ziua în care vrei să vii.</>
-              ) : !ora ? (
-                <>
-                  <strong className="first-letter:uppercase">{ziLunga(zi)}</strong> — acum alege ora.
-                </>
-              ) : !alegere ? (
-                <>
-                  <strong className="first-letter:uppercase">{ziLunga(zi)}</strong>, ora {ora} — alege minutul.
-                </>
-              ) : (
-                <span className="inline-flex items-center gap-2">
-                  {calendarCheckIcon}
-                  <span>
-                    Programare: <strong className="first-letter:uppercase">{ziLunga(zi)}</strong>, <strong>{alegere}</strong>
-                  </span>
-                </span>
-              )}
+            {/* indicația pasului curent; rezultatul apare mare, deasupra, în coloana orei */}
+            <span className="inline-flex items-center gap-2 text-[14px] text-default">
+              {calendarCheckIcon}
+              <span>
+                {!zi ? (
+                  <>Alege ziua în care vrei să vii.</>
+                ) : !ora ? (
+                  <>
+                    <strong className="first-letter:uppercase">{ziLunga(zi)}</strong> — alege ora.
+                  </>
+                ) : (
+                  <>
+                    <strong className="first-letter:uppercase">{ziLunga(zi)}</strong>, ora {ora} — alege minutele și apasă Confirmă.
+                  </>
+                )}
+              </span>
             </span>
             <button
               type="button"
