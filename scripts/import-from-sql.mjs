@@ -96,6 +96,45 @@ function slugFromLink(link) {
   return link;
 }
 
+// HTML-ul din Croogo e markup Bootstrap al temei vechi. Păstrăm doar structura de text,
+// stilul îl dă site-ul nou (.continut).
+function cleanHtml(html) {
+  let s = html
+    .replace(/<!--[\s\S]*?-->/g, "")
+    .replace(/​/g, "")
+    .replace(/<i\b[^>]*>\s*<\/i>/g, "")
+    // FAQ: item Bootstrap → <details>
+    .replace(
+      /<div class="faq-item">\s*<h3[^>]*>([\s\S]*?)<\/h3>\s*<div class="faq-content">([\s\S]*?)<\/div>/g,
+      "<details><summary>$1</summary>$2</details>",
+    )
+    .replace(/\/theme\/(?:joy_optic|JoyOptic)\/assets\/img\//g, "/img/")
+    // date de contact vechi rămase în texte
+    .replace(/0722 509 424/g, "0787 698 398")
+    .replace(/joypatriana8@gmail\.com/g, "contact@joyoptic.ro");
+
+  // scoatem toate atributele, în afară de href / src / alt
+  s = s.replace(/<(\w+)((?:\s+[\w-]+(?:="[^"]*")?)*)\s*(\/?)>/g, (_, tag, attrs, self) => {
+    const keep = [...attrs.matchAll(/\s+(href|src|alt)="([^"]*)"/g)]
+      .map((m) => ` ${m[1]}="${m[2]}"`)
+      .join("");
+    return `<${tag}${keep}${self ? " /" : ""}>`;
+  });
+
+  s = s
+    .replace(/<\/?(div|section)>/g, "\n")
+    // titlul paginii îl afișează layout-ul; scoatem primul h1/h2 de la început
+    .replace(/^\s*<h[12]>[\s\S]*?<\/h[12]>/, "")
+    .replace(/<p>\s*<\/p>/g, "")
+    .replace(/<(h\d|p|li|summary)>\s+/g, "<$1>")
+    .replace(/\n\s*\n+/g, "\n\n")
+    .trim();
+  return s;
+}
+
+// Titluri rămase în engleză din instalarea Croogo.
+const titleRo = { "Frequently Asked Questions": "Întrebări frecvente" };
+
 function transform(t) {
   const imagesByNode = {};
   for (const i of t.images ?? []) (imagesByNode[i.node_id] ??= []).push(i);
@@ -105,8 +144,9 @@ function transform(t) {
     .map((n) => ({
       legacyId: n.id,
       slug: n.slug,
-      title: n.title,
-      bodyHtml: n.body,
+      title: titleRo[n.title] ?? n.title,
+      bodyHtml: cleanHtml(n.body),
+      legacyBodyHtml: n.body,
       excerpt: n.excerpt || "",
       published: n.status === 1,
       promoted: n.promote === 1,
@@ -125,7 +165,8 @@ function transform(t) {
       legacyId: n.id,
       slug: n.slug,
       title: n.title,
-      bodyHtml: n.body,
+      bodyHtml: cleanHtml(n.body),
+      legacyBodyHtml: n.body,
       excerpt: n.excerpt || "",
       published: n.status === 1,
       createdAt: date(n.created),
@@ -149,7 +190,7 @@ function transform(t) {
     address: c.address,
     city: c.state,
     postcode: c.postcode,
-    phone: c.phone,
+    phone: "0787 698 398", // în DB era greșit „0729 698 398"
     email: c.email,
   };
 
@@ -221,17 +262,7 @@ await mongoose.connect(process.env.MONGODB_URI, {
 });
 const db = mongoose.connection.db;
 
-const typeIds = {};
-for (const bt of data.bookingTypes) {
-  const r = await db
-    .collection("bookingtypes")
-    .findOneAndUpdate(
-      { legacyId: bt.legacyId },
-      { $set: bt },
-      { upsert: true, returnDocument: "after" },
-    );
-  typeIds[bt.legacyId] = r._id;
-}
+const typeTitles = Object.fromEntries(data.bookingTypes.map((t) => [t.legacyId, t.title]));
 
 const upsertAll = async (coll, docs, key = "legacyId") => {
   for (const d of docs)
@@ -249,7 +280,8 @@ await upsertAll(
   "bookings",
   data.bookings.map(({ bookingTypeLegacyId, ...b }) => ({
     ...b,
-    bookingType: typeIds[bookingTypeLegacyId] ?? null,
+    bookingTypeId: bookingTypeLegacyId,
+    bookingTypeTitle: typeTitles[bookingTypeLegacyId] ?? "",
   })),
 );
 await upsertAll("messages", data.messages);
