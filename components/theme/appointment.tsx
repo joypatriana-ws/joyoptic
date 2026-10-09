@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useState } from "react";
 import { rowClasses, sectionClasses } from "@/lib/theme-classes.mjs";
 import { doctors, hoursFor, phonePattern } from "@/lib/site";
@@ -177,6 +178,14 @@ export function Appointment() {
             >
               Programează-te
             </button>
+            {/* informare, nu bifă: temeiul e cererea pacientului (programarea), docs/consent/README.md §6 */}
+            <p className="mt-3 mb-0 text-[13px] text-default/60">
+              Datele le folosim doar pentru programare și pentru a te contacta în legătură cu ea. Detalii în{" "}
+              <Link href="/politica-de-confidentialitate" className="underline underline-offset-2">
+                Politica de confidențialitate
+              </Link>
+              .
+            </p>
           </div>
         </form>
       </div>

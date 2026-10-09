@@ -10,6 +10,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return [
     { url: site.url, priority: 1 },
     { url: `${site.url}/contact` },
+    { url: `${site.url}/politica-de-confidentialitate` },
+    { url: `${site.url}/cookies` },
     ...pages,
     { url: `${site.url}/blog/importanta-unui-consult-oftalmologic-regulat` },
   ];

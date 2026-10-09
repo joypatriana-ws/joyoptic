@@ -90,6 +90,15 @@ export function Footer() {
         <p className="mb-0">
           © 2025 <strong className="px-1">{site.name}</strong> | Toate drepturile rezervate.
         </p>
+        <p className="mt-2 mb-0 text-[13px]">
+          <Link href="/politica-de-confidentialitate" className="text-default/70 hover:text-accent">
+            Politica de confidențialitate
+          </Link>
+          <span className="px-2 text-default/40">|</span>
+          <Link href="/cookies" className="text-default/70 hover:text-accent">
+            Cookie-uri
+          </Link>
+        </p>
       </div>
     </footer>
   );

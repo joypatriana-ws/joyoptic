@@ -1,10 +1,12 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { rowClasses, sectionClasses } from "@/lib/theme-classes.mjs";
 import { contactSubjects, phonePattern, site } from "@/lib/site";
 import { sectionId } from "@/lib/slugs.mjs";
 import { Select } from "@/components/custom-select";
+import { LazyMap } from "./lazy-map";
 import { SectionTitle } from "./section-title";
 import { contactField, formControl, formError, formLoading, formSent, validated } from "./form-classes";
 
@@ -64,13 +66,7 @@ export function Contact() {
       />
 
       <div className="mb-12" data-aos="fade-up" data-aos-delay="200">
-        <iframe
-          title="Harta Joy Optic"
-          style={{ border: 0, width: "100%", height: 270 }}
-          src={site.mapsEmbed}
-          allowFullScreen
-          loading="lazy"
-        />
+        <LazyMap />
       </div>
 
       <div className="container-bs" data-aos="fade-up" data-aos-delay="100">
@@ -161,6 +157,14 @@ export function Contact() {
                   >
                     Trimite mesaj
                   </button>
+                  {/* informare, nu bifă: temeiul e interesul legitim de a răspunde (docs/consent/README.md §6) */}
+                  <p className="mt-3 mb-0 text-[13px] text-default/60">
+                    Datele le folosim doar ca să-ți răspundem. Detalii în{" "}
+                    <Link href="/politica-de-confidentialitate" className="underline underline-offset-2">
+                      Politica de confidențialitate
+                    </Link>
+                    .
+                  </p>
                 </div>
               </div>
             </form>

@@ -1,3 +1,5 @@
+import AnalyticsScripts from "@/components/theme/analytics-scripts";
+import { CookieBanner } from "@/components/theme/cookie-consent";
 import { Flash } from "@/components/theme/flash";
 import { Footer } from "@/components/theme/footer";
 import { Header } from "@/components/theme/header";
@@ -13,6 +15,8 @@ export default async function SiteLayout({ children }: Readonly<{ children: Reac
 
   return (
     <>
+      {/* Consent Mode v2: primul, înaintea oricărui tag (docs/consent) */}
+      <AnalyticsScripts />
       <Header showOffers={showOffers} />
       <main className="main">
         <Flash />
@@ -22,6 +26,7 @@ export default async function SiteLayout({ children }: Readonly<{ children: Reac
       <ScrollTop />
       <Preloader />
       <ThemeScripts />
+      <CookieBanner />
     </>
   );
 }

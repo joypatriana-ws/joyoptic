@@ -48,3 +48,7 @@ next-env.d.ts
 
 # credențiale locale (Atlas etc.)
 *.env
+
+# note, planuri, kit-uri (consent, anpc) și scripturi de lucru — locale, ca în celelalte proiecte
+docs/
+scripts/
