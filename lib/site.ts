@@ -1,113 +1,101 @@
-// Conținutul fix al site-ului, preluat de pe joyoptic.ro (tema Croogo JoyOptic).
+// Date fixe ale site-ului, preluate din tema JoyOptic și din meniurile Croogo (tabela links).
 
 export const site = {
   name: "Joy Optic",
-  tagline: "Optică medicală și oftalmologie",
   url: "https://joyoptic.ro",
   email: "contact@joyoptic.ro",
   phone: "0787 698 398",
+  phoneTopbar: "078 769 8398",
   phoneHref: "tel:+40787698398",
   address: "Str. Republicii nr. 19",
   city: "Câmpina",
-  county: "Prahova",
-  postcode: "105600",
   facebook: "https://www.facebook.com/joyoptic08/",
   mapsEmbed:
-    "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2830.212136933364!2d25.733491!3d45.1256073!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x40b3007850198c7f%3A0x7608a986b0854d92!2sJOY%20OPTIC!5e0!3m2!1sro!2sro!4v1708600000000",
-  mapsLink: "https://www.google.com/maps/search/?api=1&query=JOY+OPTIC+C%C3%A2mpina",
+    "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2830.212136933364!2d25.733491!3d45.1256073!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x40b3007850198c7f%3A0x7608a986b0854d92!2sJOY%20OPTIC!5e0!3m2!1sen!2sro!4v1708600000000",
 };
 
-// day: 0 = duminică … 6 = sâmbătă, ca Date.getDay()
-export const schedule = [
-  { label: "Luni – Vineri", days: [1, 2, 3, 4, 5], open: "09:00", close: "19:00" },
-  { label: "Sâmbătă", days: [6], open: "09:00", close: "12:00" },
-  { label: "Duminică", days: [0], open: null, close: null },
-] as const;
+/** Meniul de pe prima pagină (Layouts/promoted.ctp), cu ancore. */
+export const homeMenu = [
+  { title: "Home", href: "#hero" },
+  { title: "About", href: "#about" },
+  { title: "Services", href: "#services" },
+  { title: "Offers", href: "#special-offers" },
+  { title: "Doctors", href: "#doctors" },
+  { title: "Contact", href: "#contact" },
+];
 
-export const nav = [
-  { title: "Servicii", href: "/#servicii" },
-  { title: "Echipa", href: "/#echipa" },
-  { title: "Întrebări frecvente", href: "/page/faq" },
+/** Meniul „main" din Croogo, pe celelalte pagini (Layouts/default.ctp). */
+export const mainMenu = [
+  { title: "Home", href: "/" },
+  { title: "About", href: "/page/about-us" },
+  { title: "Services", href: "/page/services" },
+  { title: "Doctors", href: "/page/doctors" },
+  { title: "FAQs", href: "/page/faq" },
   { title: "Contact", href: "/contact" },
 ];
 
-export const services = [
-  {
-    title: "Consultații oftalmologice",
-    text: "Evaluare făcută de medici oftalmologi, cu măsurători precise și recomandări explicate pe înțeles.",
-    href: "/page/consultatii-oftalmologice",
-  },
-  {
-    title: "Examen oftalmologic pentru permis auto",
-    text: "Avizul oftalmologic pentru permis, eliberat în aceeași vizită.",
-    href: "/page/examen-oftalmologic-pentru-permis-auto",
-  },
-  {
-    title: "Prescriere ochelari",
-    text: "Rețetă corectă și sfaturi pentru rame și lentile potrivite stilului și activității tale.",
-    href: "/page/prescriere-ochelari",
-  },
-  {
-    title: "Lentile de contact",
-    text: "Găsim lentilele potrivite, le probăm împreună și îți arătăm cum să le porți și să le întreții.",
-  },
-  {
-    title: "Diagnostic și monitorizare",
-    text: "Depistăm și urmărim afecțiunile ochilor cu investigații moderne, apoi îți explicăm opțiunile de tratament.",
-  },
-  {
-    title: "Rame, ochelari de soare și montaj",
-    text: "Rame și lentile cu protecție UV, montate și ajustate în cabinet cu aparatură automatizată.",
-  },
+/** Meniul „footer" din Croogo („Linkuri Utile"). */
+export const footerMenu = [
+  { title: "Acasa", href: "/" },
+  { title: "Despre Noi", href: "/page/about-us" },
+  { title: "Servicii", href: "/page/services" },
+  { title: "Contact", href: "/contact" },
 ];
 
-export const team = [
-  { name: "Dr. Daniela Anghelache", role: "Medic primar oftalmolog", note: "Diagnostic și tratamente oftalmologice." },
-  { name: "Dr. Sorin Bărbuceanu", role: "Medic primar oftalmolog", note: "Consultații și tratamente oftalmologice." },
-  { name: "Dr. Ioana Claudia Popteanu", role: "Medic specialist oftalmologie", note: "Diagnostic și tratament pentru afecțiuni oculare, inclusiv la copii." },
-  { name: "Denisa Munteanu", role: "Optometrist", note: "Măsurători optometrice și prescripția ochelarilor." },
-  { name: "Melania Apostu", role: "Consultant vânzări", note: "Te ajută să alegi ramele și lentilele potrivite." },
+/** Meniul „services" din Croogo („Serviciile Noastre"). */
+export const servicesMenu = [
+  { title: "Examen Permis Auto", href: "/page/examen-oftalmologic-pentru-permis-auto" },
+  { title: "Consultații oftalmologice", href: "/page/consultatii-oftalmologice" },
+  { title: "Prescriere ochelari", href: "/page/prescriere-ochelari" },
 ];
 
-// Valorile `value` trebuie să rămână identice cu cele din programările vechi (câmpul doctor).
-export const doctors = [
-  { value: "Dr. ANGHELACHE Daniela", label: "Dr. Daniela Anghelache — oftalmologie" },
-  { value: "Dr. BARBUCEANU Sorin", label: "Dr. Sorin Bărbuceanu — oftalmologie" },
-  { value: "Dr. Popteanu Ioana Claudia", label: "Dr. Ioana Claudia Popteanu — oftalmopediatrie" },
-];
-
+/** Tabela booking_types („Selectează departamentul"). */
 export const bookingTypes = [
-  { id: 1, title: "Consultație oftalmologică generală" },
-  { id: 2, title: "Prescripție și adaptare optică" },
-  { id: 3, title: "Consultație de specialitate" },
-  { id: 4, title: "Control periodic" },
+  { id: 1, title: "Consultații oftalmologice generale" },
+  { id: 2, title: "Prescripții și adaptări optice" },
+  { id: 3, title: "Consultații specializate" },
+  { id: 4, title: "Monitorizare și controale periodice" },
 ];
 
+/** Medicii din formularul de programare (Elements/home_appointment.ctp). */
+export const doctors = [
+  { name: "Dr. ANGHELACHE Daniela", specialization: "Oftalmologie" },
+  { name: "Dr. BARBUCEANU Sorin", specialization: "Optometrie" },
+  { name: "Dr. Popteanu Ioana Claudia", specialization: "Oftalmopediatrie" },
+];
+
+/** Subiectele din formularul de contact (Nodes/promoted.ctp). */
 export const contactSubjects = [
-  "Consultație oftalmologică",
-  "Prescripție ochelari",
-  "Examen oftalmologic permis auto",
-  "Lentile de contact",
-  "Comenzi și livrări",
-  "Programare",
-  "Altceva",
+  { value: "Consultatie oftalmologica", label: "Consultație oftalmologică" },
+  { value: "Prescriptie ochelari", label: "Prescripție ochelari" },
+  { value: "Examen oftalmologic permis auto", label: "Examen oftalmologic permis auto" },
+  { value: "Prescriptie lentile de contact", label: "Prescripție lentile de contact" },
+  { value: "Tratamente oftalmologice", label: "Tratamente oftalmologice" },
+  { value: "Afectiuni oculare", label: "Afecțiuni oculare" },
+  { value: "Comenzi si livrari", label: "Comenzi și livrări" },
+  { value: "Programare", label: "Programare" },
+  { value: "Intrebari generale", label: "Întrebări generale" },
 ];
 
 export const gallery = [
-  "/img/gallery/gallery-2.jpg",
-  "/img/gallery/gallery-4.jpg",
-  "/img/gallery/gallery-5.jpg",
-  "/img/gallery/gallery-6.jpg",
+  { src: "/img/gallery/gallery-2.jpg", alt: "Imagine 2" },
+  { src: "/img/gallery/gallery-4.jpg", alt: "Imagine 4" },
+  { src: "/img/gallery/gallery-5.jpg", alt: "Imagine 5" },
+  { src: "/img/gallery/gallery-6.jpg", alt: "Imagine 6" },
 ];
 
-/** Orele de programare (din oră în oră, ca pe site-ul vechi) pentru ziua dată, sau [] dacă e închis. */
-export function slotsFor(date: Date): string[] {
-  const day = schedule.find((s) => (s.days as readonly number[]).includes(date.getDay()));
-  if (!day?.open || !day.close) return [];
-  const toMin = (t: string) => Number(t.slice(0, 2)) * 60 + Number(t.slice(3));
-  const out: string[] = [];
-  for (let m = toMin(day.open); m < toMin(day.close); m += 60) {
-    out.push(`${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`);
-  }
-  return out;
+/** Telefon românesc, ca în validarea formularelor vechi. */
+export const phonePattern = /^(07[1-9]\d{7}|02\d{7}|03\d{7})$/;
+
+const workHours = ["09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00"];
+
+/**
+ * Orele din select-ul de programare: 09:00–19:00, sâmbăta până la 12:00, duminica închis.
+ * (Pe site-ul vechi filtrul de sâmbătă se aplica după ziua de azi; aici după ziua aleasă.)
+ */
+export function hoursFor(date: Date): string[] {
+  const day = date.getDay();
+  if (day === 0) return [];
+  if (day === 6) return workHours.filter((h) => h <= "12:00");
+  return workHours;
 }

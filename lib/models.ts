@@ -12,6 +12,7 @@ const bookingSchema = new Schema(
     phone: { type: String, required: true },
     email: { type: String, required: true },
     doctor: { type: String, default: "" },
+    message: { type: String, default: "" },
   },
   { timestamps: true },
 );

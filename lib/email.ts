@@ -1,15 +1,15 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { Resend } from "resend";
 import { site } from "./site";
-import { formatRo } from "./time";
+import { adminBookingHtml, adminMessageHtml, userBookingHtml } from "./email-templates";
 import type { BookingDoc, MessageDoc } from "./models";
 
 const FROM = process.env.EMAIL_FROM ?? `${site.name} <programari@joyoptic.ro>`;
 const ADMIN = process.env.EMAIL_ADMIN ?? site.email;
 
-async function send(opts: { to: string; subject: string; text: string; replyTo?: string }) {
+async function send(opts: { to: string; subject: string; html: string; replyTo?: string }) {
   if (!process.env.RESEND_API_KEY) {
-    console.info(`[email neconfigurat] către ${opts.to}: ${opts.subject}\n${opts.text}`);
+    console.info(`[email neconfigurat] către ${opts.to}: ${opts.subject}`);
     return;
   }
   const resend = new Resend(process.env.RESEND_API_KEY);
@@ -37,49 +37,49 @@ export function isValidToken(b: Pick<BookingDoc, "_id" | "start">, token: string
   return expected.length === given.length && timingSafeEqual(expected, given);
 }
 
-// ---------- emailuri ----------
+// ---------- emailuri (template-urile din tema veche) ----------
+
+/** date('d-m-Y') / date('H:i') din PHP, pe ora României */
+function ro(d: Date) {
+  const p = Object.fromEntries(
+    new Intl.DateTimeFormat("en-GB", {
+      timeZone: "Europe/Bucharest",
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hourCycle: "h23",
+    })
+      .formatToParts(d)
+      .map((x) => [x.type, x.value]),
+  );
+  return { date: `${p.day}-${p.month}-${p.year}`, hour: `${p.hour}:${p.minute}` };
+}
 
 export async function sendBookingEmails(b: BookingDoc) {
-  const when = formatRo(b.start);
+  const { date, hour } = ro(b.start);
+  const data = { name: b.name, phone: b.phone, email: b.email, date, hour, type: b.bookingTypeTitle };
   const confirmUrl = `${process.env.SITE_URL ?? site.url}/programare/confirma/${b._id}/${confirmToken(b)}`;
-  const details = [
-    `Tip: ${b.bookingTypeTitle}`,
-    `Data: ${when}`,
-    `Medic: ${b.doctor || "oricare medic disponibil"}`,
-  ];
 
-  await Promise.all([
-    send({
-      to: ADMIN,
-      replyTo: b.email,
-      subject: `Programare nouă: ${b.name}, ${when}`,
-      text: [...details, "", `Nume: ${b.name}`, `Telefon: ${b.phone}`, `Email: ${b.email}`].join("\n"),
-    }),
-    send({
-      to: b.email,
-      subject: `Confirmă programarea la ${site.name}`,
-      text: [
-        `Bună ziua, ${b.name},`,
-        "",
-        `Am primit cererea de programare la ${site.name}:`,
-        ...details,
-        "",
-        "Te rugăm să confirmi programarea apăsând pe linkul de mai jos:",
-        confirmUrl,
-        "",
-        `Dacă vrei să muți sau să anulezi programarea, sună-ne la ${site.phone}.`,
-        "",
-        `${site.name}, ${site.address}, ${site.city}`,
-      ].join("\n"),
-    }),
-  ]);
+  // ca pe site-ul vechi: întâi emailul către cabinet, apoi confirmarea către pacient
+  await send({ to: ADMIN, replyTo: b.email, subject: "Programare nouă - JoyOptic", html: adminBookingHtml(data) });
+  await send({ to: b.email, subject: "Confirmare programare - JoyOptic", html: userBookingHtml({ ...data, confirmUrl }) });
 }
 
 export async function sendMessageEmail(m: MessageDoc) {
+  const { date, hour } = ro(m.createdAt ?? new Date());
   await send({
     to: ADMIN,
     replyTo: m.email,
-    subject: `Mesaj nou de pe site: ${m.subject || "fără subiect"}`,
-    text: [`De la: ${m.name} <${m.email}>`, `Telefon: ${m.phone || "-"}`, `Subiect: ${m.subject}`, "", m.body].join("\n"),
+    subject: "Mesaj nou - JoyOptic",
+    html: adminMessageHtml({
+      name: m.name,
+      phone: m.phone,
+      email: m.email,
+      date: `${date} ${hour}`,
+      subject: m.subject,
+      body: m.body,
+    }),
   });
 }

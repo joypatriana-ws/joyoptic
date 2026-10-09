@@ -8,20 +8,3 @@ export function bucharestToUtc(date: string, time: string): Date {
     new Date(asUtc.toLocaleString("en-US", { timeZone: "UTC" })).getTime();
   return new Date(asUtc.getTime() - offsetMs);
 }
-
-/** „joi, 9 octombrie 2026, ora 18:00" */
-export function formatRo(d: Date): string {
-  const day = new Intl.DateTimeFormat("ro-RO", {
-    timeZone: TZ,
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  }).format(d);
-  const hour = new Intl.DateTimeFormat("ro-RO", {
-    timeZone: TZ,
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(d);
-  return `${day}, ora ${hour}`;
-}

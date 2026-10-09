@@ -8,6 +8,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import mongoose from "mongoose";
+import { convertThemeHtml } from "./convert-theme-html.mjs";
 
 const SQL_PATH =
   process.env.SQL_DUMP ??
@@ -96,44 +97,12 @@ function slugFromLink(link) {
   return link;
 }
 
-// HTML-ul din Croogo e markup Bootstrap al temei vechi. Păstrăm doar structura de text,
-// stilul îl dă site-ul nou (.continut).
+const unknownClasses = new Set();
 function cleanHtml(html) {
-  let s = html
-    .replace(/<!--[\s\S]*?-->/g, "")
-    .replace(/​/g, "")
-    .replace(/<i\b[^>]*>\s*<\/i>/g, "")
-    // FAQ: item Bootstrap → <details>
-    .replace(
-      /<div class="faq-item">\s*<h3[^>]*>([\s\S]*?)<\/h3>\s*<div class="faq-content">([\s\S]*?)<\/div>/g,
-      "<details><summary>$1</summary>$2</details>",
-    )
-    .replace(/\/theme\/(?:joy_optic|JoyOptic)\/assets\/img\//g, "/img/")
-    // date de contact vechi rămase în texte
-    .replace(/0722 509 424/g, "0787 698 398")
-    .replace(/joypatriana8@gmail\.com/g, "contact@joyoptic.ro");
-
-  // scoatem toate atributele, în afară de href / src / alt
-  s = s.replace(/<(\w+)((?:\s+[\w-]+(?:="[^"]*")?)*)\s*(\/?)>/g, (_, tag, attrs, self) => {
-    const keep = [...attrs.matchAll(/\s+(href|src|alt)="([^"]*)"/g)]
-      .map((m) => ` ${m[1]}="${m[2]}"`)
-      .join("");
-    return `<${tag}${keep}${self ? " /" : ""}>`;
-  });
-
-  s = s
-    .replace(/<\/?(div|section)>/g, "\n")
-    // titlul paginii îl afișează layout-ul; scoatem primul h1/h2 de la început
-    .replace(/^\s*<h[12]>[\s\S]*?<\/h[12]>/, "")
-    .replace(/<p>\s*<\/p>/g, "")
-    .replace(/<(h\d|p|li|summary)>\s+/g, "<$1>")
-    .replace(/\n\s*\n+/g, "\n\n")
-    .trim();
-  return s;
+  const r = convertThemeHtml(html);
+  r.unknown.forEach((c) => unknownClasses.add(c));
+  return r.html;
 }
-
-// Titluri rămase în engleză din instalarea Croogo.
-const titleRo = { "Frequently Asked Questions": "Întrebări frecvente" };
 
 function transform(t) {
   const imagesByNode = {};
@@ -144,7 +113,7 @@ function transform(t) {
     .map((n) => ({
       legacyId: n.id,
       slug: n.slug,
-      title: titleRo[n.title] ?? n.title,
+      title: n.title,
       bodyHtml: cleanHtml(n.body),
       legacyBodyHtml: n.body,
       excerpt: n.excerpt || "",
@@ -242,6 +211,7 @@ function transform(t) {
 const sql = fs.readFileSync(SQL_PATH, "utf8");
 const data = transform(parseInserts(sql));
 
+if (unknownClasses.size) console.warn("Clase fără echivalent Tailwind:", [...unknownClasses].join(", "));
 console.log(
   Object.entries(data)
     .map(([k, v]) => `${k}: ${Array.isArray(v) ? v.length : 1}`)

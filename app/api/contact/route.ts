@@ -3,13 +3,14 @@ import { z } from "zod";
 import { connectDb } from "@/lib/db";
 import { sendMessageEmail } from "@/lib/email";
 import { Message } from "@/lib/models";
+import { contactSubjects, phonePattern } from "@/lib/site";
 
 const schema = z.object({
-  name: z.string().trim().min(2, "Scrie-ne numele tău."),
-  email: z.string().trim().pipe(z.email("Scrie o adresă de email validă.")),
-  phone: z.string().trim().max(30).default(""),
-  subject: z.string().trim().max(120).default(""),
-  body: z.string().trim().min(5, "Scrie mesajul.").max(5000, "Mesajul este prea lung."),
+  name: z.string().trim().min(1, "Completează numele."),
+  email: z.string().trim().pipe(z.email("Adresa de email nu este validă.")),
+  phone: z.string().trim().regex(phonePattern, "Numărul de telefon nu este valid."),
+  subject: z.string().refine((s) => contactSubjects.some((x) => x.value === s), "Alege un subiect."),
+  body: z.string().trim().min(1, "Scrie mesajul.").max(5000, "Mesajul este prea lung."),
   website: z.string().optional(),
 });
 
@@ -18,14 +19,14 @@ export async function POST(req: Request) {
   if (!parsed.success) {
     return NextResponse.json(
       {
-        message: "Verifică câmpurile marcate.",
+        message: parsed.error.issues[0]?.message ?? "Mesajul nu a fost trimis.",
         errors: Object.fromEntries(parsed.error.issues.map((i) => [String(i.path[0]), i.message])),
       },
       { status: 400 },
     );
   }
   const { website, ...data } = parsed.data;
-  const ok = { message: "Mulțumim! Revenim cu un răspuns prin email sau telefon." };
+  const ok = { message: "Mesajul a fost trimis" };
   if (website) return NextResponse.json(ok);
 
   await connectDb();

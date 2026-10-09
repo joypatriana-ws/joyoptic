@@ -1,149 +1,169 @@
 @import "tailwindcss";
+@import "bootstrap-icons/font/bootstrap-icons.css";
+@import "aos/dist/aos.css";
+@import "glightbox/dist/css/glightbox.min.css";
+
+/* Clasele Tailwind generate pentru HTML-ul paginilor din DB (convertit la import). */
+@source "../lib/theme-classes.mjs";
 
 /*
-  Paleta pornește de la cabinetul de optică:
-  - hârtie: albul rece al planșei de optotipuri
-  - cerneală: literele planșei
-  - lentilă: albastrul irisului din logo, închis pentru contrast pe alb
-  - reflex: violetul din același gradient al logo-ului, folosit pentru focus
+  Variabilele temei Medilab (main.css) din vechiul JoyOptic, ca tokenuri Tailwind:
+  --accent-color, --heading-color, --default-color, --surface-color, .light-background.
+  Breakpointurile sunt cele din Bootstrap 5, ca sm/md/lg/xl să cadă exact ca înainte.
 */
 @theme {
-  --color-hartie: #f7f9fb;
-  --color-ceata: #e8eef5;
-  --color-linie: #d2dae4;
-  --color-cerneala: #15233a;
-  --color-cerneala-2: #44526a;
-  --color-lentila: #1d5fa6;
-  --color-lentila-2: #174d88;
-  --color-reflex: #8a4fe0;
+  --color-accent: #28a745;
+  --color-heading: #155724;
+  --color-default: #2b6f49;
+  --color-surface: #f6fff7;
+  --color-light: #f1f7fc;
+  --color-nav-hover: #1e8b57;
+  --color-body: #212529;
 
-  --font-sans: var(--font-atkinson), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-roboto), system-ui, -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --font-heading: var(--font-poppins), sans-serif;
+  --font-nav: var(--font-raleway), sans-serif;
+
+  --breakpoint-sm: 576px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 992px;
+  --breakpoint-xl: 1200px;
+  --breakpoint-2xl: 1400px;
 }
 
-html {
-  scroll-behavior: smooth;
-  scroll-padding-top: 5rem;
-}
-
-body {
-  background: var(--color-hartie);
-  color: var(--color-cerneala);
-  font-family: var(--font-sans);
-  font-size: 1.0625rem;
-  line-height: 1.6;
-  -webkit-font-smoothing: antialiased;
-}
-
-:focus-visible {
-  outline: 3px solid var(--color-reflex);
-  outline-offset: 3px;
-  border-radius: 4px;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
+/* .container din Bootstrap */
+@utility container-bs {
+  width: 100%;
+  margin-inline: auto;
+  padding-inline: 12px;
+  @media (width >= 576px) {
+    max-width: 540px;
   }
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
+  @media (width >= 768px) {
+    max-width: 720px;
+  }
+  @media (width >= 992px) {
+    max-width: 960px;
+  }
+  @media (width >= 1200px) {
+    max-width: 1140px;
+  }
+  @media (width >= 1400px) {
+    max-width: 1320px;
   }
 }
 
-/* Planșa de optotipuri din hero: fiecare rând apare pe rând, ca la o citire de la distanță. */
-@keyframes rand-optotip {
-  from {
-    opacity: 0;
-    filter: blur(6px);
+/* Tipografia de bază din Bootstrap Reboot + regulile generale din main.css */
+@layer base {
+  :root {
+    scroll-behavior: smooth;
   }
-  to {
-    opacity: 1;
-    filter: blur(0);
-  }
-}
-.rand-optotip {
-  animation: rand-optotip 0.9s ease-out both;
-}
 
-/* Conținutul paginilor venit din baza de date (HTML editat în admin). */
-.continut {
-  max-width: 68ch;
-}
-.continut h2 {
-  font-size: 1.6rem;
-  font-weight: 700;
-  line-height: 1.25;
-  margin: 2.5rem 0 0.75rem;
-}
-.continut h3 {
-  font-size: 1.25rem;
-  font-weight: 700;
-  margin: 2rem 0 0.5rem;
-}
-.continut p,
-.continut ul,
-.continut ol {
-  margin: 0 0 1rem;
-}
-.continut ul {
-  list-style: disc;
-  padding-left: 1.25rem;
-}
-.continut ol {
-  list-style: decimal;
-  padding-left: 1.25rem;
-}
-.continut li {
-  margin-bottom: 0.35rem;
-}
-.continut a {
-  color: var(--color-lentila);
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-.continut strong {
-  font-weight: 700;
-}
-.continut img {
-  border-radius: 6px;
-  margin: 1.5rem 0;
-}
-.continut blockquote {
-  border-left: 3px solid var(--color-lentila);
-  padding-left: 1.25rem;
-  margin: 1.5rem 0;
-  font-size: 1.2rem;
-}
-.continut details {
-  border-top: 1px solid var(--color-linie);
-  padding: 1rem 0;
-}
-.continut details:last-of-type {
-  border-bottom: 1px solid var(--color-linie);
-}
-.continut summary {
-  cursor: pointer;
-  font-weight: 700;
-  font-size: 1.15rem;
-  list-style: none;
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-}
-.continut summary::-webkit-details-marker {
-  display: none;
-}
-.continut summary::after {
-  content: "+";
-  color: var(--color-lentila);
-  font-size: 1.5rem;
-  line-height: 1;
-}
-.continut details[open] summary::after {
-  content: "−";
-}
-.continut details > *:not(summary) {
-  margin-top: 0.75rem;
+  body {
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.5;
+    color: var(--color-default);
+    background-color: #fff;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+    font-family: var(--font-heading);
+    font-weight: 500;
+    line-height: 1.2;
+    color: var(--color-heading);
+  }
+  h1 {
+    font-size: calc(1.375rem + 1.5vw);
+  }
+  h2 {
+    font-size: calc(1.325rem + 0.9vw);
+  }
+  h3 {
+    font-size: calc(1.3rem + 0.6vw);
+  }
+  h4 {
+    font-size: calc(1.275rem + 0.3vw);
+  }
+  h5 {
+    font-size: 1.25rem;
+  }
+  h6 {
+    font-size: 1rem;
+  }
+  @media (width >= 1200px) {
+    h1 {
+      font-size: 2.5rem;
+    }
+    h2 {
+      font-size: 2rem;
+    }
+    h3 {
+      font-size: 1.75rem;
+    }
+    h4 {
+      font-size: 1.5rem;
+    }
+  }
+
+  p {
+    margin-top: 0;
+    margin-bottom: 1rem;
+  }
+
+  ul,
+  ol {
+    padding-left: 2rem;
+    margin-top: 0;
+    margin-bottom: 1rem;
+  }
+  ul {
+    list-style: disc;
+  }
+  ol {
+    list-style: decimal;
+  }
+  ul ul,
+  ol ol {
+    margin-bottom: 0;
+  }
+
+  b,
+  strong {
+    font-weight: bolder;
+  }
+
+  blockquote {
+    margin: 0 0 1rem;
+  }
+
+  a {
+    color: var(--color-accent);
+    text-decoration: none;
+    transition: 0.3s;
+  }
+  a:hover {
+    color: color-mix(in srgb, var(--color-accent), transparent 25%);
+  }
+
+  img,
+  svg {
+    vertical-align: middle;
+  }
+
+  label {
+    display: inline-block;
+  }
+
+  button {
+    cursor: pointer;
+  }
 }
