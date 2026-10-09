@@ -9,17 +9,17 @@ export const revalidate = 300;
 /** Nodes/promoted.ctp: hero, apoi paginile promovate în ordine, apoi contactul. */
 export default async function Home() {
   const pages = await listPromotedPages();
-  const hero = pages.find((p) => p.slug === "hero");
+  const hero = pages.find((p) => p.legacySlug === "hero");
 
   return (
     <>
       {hero && <NodeBody html={hero.bodyHtml} />}
       {pages
-        .filter((p) => p.slug !== "hero")
+        .filter((p) => p.legacySlug !== "hero")
         .map((p) =>
-          p.slug === "gallery" ? (
+          p.legacySlug === "gallery" ? (
             <Gallery key={p.slug} />
-          ) : p.slug === "appointment" ? (
+          ) : p.legacySlug === "appointment" ? (
             <Appointment key={p.slug} />
           ) : (
             <NodeBody key={p.slug} html={p.bodyHtml} />

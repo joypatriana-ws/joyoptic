@@ -34,6 +34,7 @@ const pageSchema = new Schema(
   {
     legacyId: Number,
     slug: { type: String, required: true, unique: true },
+    legacySlug: { type: String, index: true },
     title: { type: String, required: true },
     bodyHtml: { type: String, default: "" },
     excerpt: { type: String, default: "" },

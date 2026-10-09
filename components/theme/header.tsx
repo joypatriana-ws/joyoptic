@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { homeMenu, mainMenu, site } from "@/lib/site";
+import { pagePath, sectionId } from "@/lib/slugs.mjs";
 
 /**
  * <header id="header" class="header sticky-top"> din Layouts/promoted.ctp (prima pagină, meniu cu ancore)
@@ -17,7 +18,7 @@ export function Header() {
 
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [activeHash, setActiveHash] = useState("#hero");
+  const [activeHash, setActiveHash] = useState(`#${sectionId("hero")}`);
 
   useEffect(() => {
     function onScroll() {
@@ -132,10 +133,10 @@ export function Header() {
           </nav>
 
           <Link
-            href={isHome ? "#appointment" : "/page/appointment"}
+            href={isHome ? `#${sectionId("appointment")}` : pagePath("appointment")}
             className="ml-[30px] hidden rounded-[50px] bg-accent px-[25px] py-2 text-[14px] text-white transition duration-300 hover:bg-accent/85 hover:text-white focus:text-white sm:block max-xl:order-2 max-xl:mr-[15px] max-xl:ml-0 max-xl:px-[15px] max-xl:py-1.5"
           >
-            Make an Appointment
+            Programează-te
           </Link>
         </div>
       </div>

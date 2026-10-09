@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { rowClasses, sectionClasses } from "@/lib/theme-classes.mjs";
 import { contactSubjects, phonePattern, site } from "@/lib/site";
+import { sectionId } from "@/lib/slugs.mjs";
 import { SectionTitle } from "./section-title";
 import { contactField, formControl, formError, formLoading, formSent, validated } from "./form-classes";
 
@@ -14,7 +15,7 @@ const infoIcon =
 const infoH3 = "mb-[5px] p-0 text-[18px] font-bold";
 const infoP = "mb-0 p-0 text-[14px]";
 
-/** <section id="contact" class="contact section"> din Nodes/promoted.ctp și Contacts/view.ctp */
+/** <section id={sectionId("contact")} class="contact section"> din Nodes/promoted.ctp și Contacts/view.ctp */
 export function Contact() {
   const [status, setStatus] = useState<Status>({ kind: "idle" });
   const [validatedForm, setValidatedForm] = useState(false);
@@ -53,7 +54,7 @@ export function Contact() {
   const bootstrapField = `${formControl} ${validated}`;
 
   return (
-    <section id="contact" className={sectionClasses()}>
+    <section id={sectionId("contact")} className={sectionClasses()}>
       <SectionTitle
         title="Contact Joy Optic"
         text="Ai nevoie de informații suplimentare? Contactează-ne folosind formularul de mai jos sau prin telefon."

@@ -21,7 +21,6 @@ export const metadata: Metadata = {
   description: "Optică Medicală și Oftalmologie",
   keywords: "joy optic",
   robots: "index, follow",
-  icons: { icon: "/img/favicon.ico", apple: "/img/favicon.ico" },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

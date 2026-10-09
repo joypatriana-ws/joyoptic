@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { rowClasses, sectionClasses } from "@/lib/theme-classes.mjs";
 import { bookingTypes, doctors, hoursFor, phonePattern } from "@/lib/site";
+import { sectionId } from "@/lib/slugs.mjs";
 import { SectionTitle } from "./section-title";
 import {
   appointmentField,
@@ -22,7 +23,7 @@ const todayIso = () => {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 };
 
-/** <section id="appointment" class="appointment section"> din Elements/home_appointment.ctp */
+/** <section id={sectionId("appointment")} class="appointment section"> din Elements/home_appointment.ctp */
 export function Appointment() {
   const [status, setStatus] = useState<Status>({ kind: "idle" });
   const [validatedForm, setValidatedForm] = useState(false);
@@ -73,7 +74,7 @@ export function Appointment() {
   const select = `${field} ${selectArrow} pr-9!`;
 
   return (
-    <section id="appointment" className={sectionClasses()}>
+    <section id={sectionId("appointment")} className={sectionClasses()}>
       <SectionTitle
         title="Programează-te la Joy Optic"
         text="Completează formularul de mai jos și un reprezentant Joy Optic te va contacta pentru confirmare."

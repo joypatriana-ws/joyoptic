@@ -4,6 +4,8 @@ import { Page, Post } from "./models";
 export type ContentItem = {
   legacyId?: number;
   slug: string;
+  /** slug-ul din Croogo (about-us, gallery…), după care se recunosc secțiunile speciale */
+  legacySlug?: string;
   title: string;
   bodyHtml: string;
   excerpt: string;

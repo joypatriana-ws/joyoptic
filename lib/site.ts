@@ -1,5 +1,7 @@
 // Date fixe ale site-ului, preluate din tema JoyOptic și din meniurile Croogo (tabela links).
 
+import { pagePath, sectionId } from "./slugs.mjs";
+
 export const site = {
   name: "Joy Optic",
   url: "https://joyoptic.ro",
@@ -16,37 +18,37 @@ export const site = {
 
 /** Meniul de pe prima pagină (Layouts/promoted.ctp), cu ancore. */
 export const homeMenu = [
-  { title: "Home", href: "#hero" },
-  { title: "About", href: "#about" },
-  { title: "Services", href: "#services" },
-  { title: "Offers", href: "#special-offers" },
-  { title: "Doctors", href: "#doctors" },
-  { title: "Contact", href: "#contact" },
+  { title: "Acasă", href: `#${sectionId("hero")}` },
+  { title: "Despre noi", href: `#${sectionId("about")}` },
+  { title: "Servicii", href: `#${sectionId("services")}` },
+  { title: "Oferte", href: `#${sectionId("special-offers")}` },
+  { title: "Echipa", href: `#${sectionId("doctors")}` },
+  { title: "Contact", href: `#${sectionId("contact")}` },
 ];
 
 /** Meniul „main" din Croogo, pe celelalte pagini (Layouts/default.ctp). */
 export const mainMenu = [
-  { title: "Home", href: "/" },
-  { title: "About", href: "/page/about-us" },
-  { title: "Services", href: "/page/services" },
-  { title: "Doctors", href: "/page/doctors" },
-  { title: "FAQs", href: "/page/faq" },
+  { title: "Acasă", href: "/" },
+  { title: "Despre noi", href: pagePath("about-us") },
+  { title: "Servicii", href: pagePath("services") },
+  { title: "Echipa", href: pagePath("doctors") },
+  { title: "Întrebări frecvente", href: pagePath("faq") },
   { title: "Contact", href: "/contact" },
 ];
 
 /** Meniul „footer" din Croogo („Linkuri Utile"). */
 export const footerMenu = [
-  { title: "Acasa", href: "/" },
-  { title: "Despre Noi", href: "/page/about-us" },
-  { title: "Servicii", href: "/page/services" },
+  { title: "Acasă", href: "/" },
+  { title: "Despre Noi", href: pagePath("about-us") },
+  { title: "Servicii", href: pagePath("services") },
   { title: "Contact", href: "/contact" },
 ];
 
 /** Meniul „services" din Croogo („Serviciile Noastre"). */
 export const servicesMenu = [
-  { title: "Examen Permis Auto", href: "/page/examen-oftalmologic-pentru-permis-auto" },
-  { title: "Consultații oftalmologice", href: "/page/consultatii-oftalmologice" },
-  { title: "Prescriere ochelari", href: "/page/prescriere-ochelari" },
+  { title: "Examen Permis Auto", href: pagePath("examen-oftalmologic-pentru-permis-auto") },
+  { title: "Consultații oftalmologice", href: pagePath("consultatii-oftalmologice") },
+  { title: "Prescriere ochelari", href: pagePath("prescriere-ochelari") },
 ];
 
 /** Tabela booking_types („Selectează departamentul"). */

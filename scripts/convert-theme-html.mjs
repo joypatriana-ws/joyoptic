@@ -12,6 +12,7 @@ import {
   sectionClasses,
   sectionTitle,
 } from "../lib/theme-classes.mjs";
+import { sectionId } from "../lib/slugs.mjs";
 
 const CONTEXTS = ["hero", "about", "services", "doctors", "faq"];
 
@@ -71,6 +72,10 @@ export function convertThemeHtml(html) {
   // contextele se citesc înainte de conversie, cât clasele secțiunilor sunt încă cele originale
   const elements = $("[class]").toArray().map((el) => [el, contextOf($, el)]);
   for (const [el, ctx] of elements) convertClasses($, el, ctx, unknown);
+
+  // ancorele secțiunilor, în română (id="about" → id="despre-noi", href="#about" → href="#despre-noi")
+  $("[id]").each((_, el) => $(el).attr("id", sectionId($(el).attr("id"))));
+  $('a[href^="#"]').each((_, el) => $(el).attr("href", `#${sectionId($(el).attr("href").slice(1))}`));
 
   // atribute rămase de la AOS / editor, fără efect
   $("[data-]").removeAttr("data-");

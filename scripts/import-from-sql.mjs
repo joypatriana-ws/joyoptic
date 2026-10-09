@@ -9,6 +9,7 @@ import fs from "node:fs";
 import path from "node:path";
 import mongoose from "mongoose";
 import { convertThemeHtml } from "./convert-theme-html.mjs";
+import { pagePath, pageSlugs } from "../lib/slugs.mjs";
 
 const SQL_PATH =
   process.env.SQL_DUMP ??
@@ -91,7 +92,7 @@ function date(s) {
 
 function slugFromLink(link) {
   const m = /slug:([\w-]+)/.exec(link);
-  if (m) return `/page/${m[1]}`;
+  if (m) return pagePath(m[1]);
   if (link.includes("action:promoted")) return "/";
   if (link.includes("controller:contacts")) return "/contact";
   return link;
@@ -112,7 +113,8 @@ function transform(t) {
     .filter((n) => n.type === "page")
     .map((n) => ({
       legacyId: n.id,
-      slug: n.slug,
+      slug: pageSlugs[n.slug] ?? n.slug,
+      legacySlug: n.slug,
       title: n.title,
       bodyHtml: cleanHtml(n.body),
       legacyBodyHtml: n.body,

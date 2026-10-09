@@ -1,11 +1,12 @@
 import { rowClasses, sectionClasses } from "@/lib/theme-classes.mjs";
 import { gallery } from "@/lib/site";
+import { sectionId } from "@/lib/slugs.mjs";
 import { SectionTitle } from "./section-title";
 
-/** <section id="gallery" class="gallery section"> din Elements/home_gallery.ctp */
+/** <section id={sectionId("gallery")} class="gallery section"> din Elements/home_gallery.ctp */
 export function Gallery() {
   return (
-    <section id="gallery" className={sectionClasses()}>
+    <section id={sectionId("gallery")} className={sectionClasses()}>
       <SectionTitle
         title="Galerie"
         text="Descoperiți imagini din cabinetul nostru și gama variată de produse disponibile."
